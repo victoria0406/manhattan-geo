@@ -3,6 +3,7 @@
 import Map, {Source, Layer} from '@/lib/useClientModules';
 import { useEffect, useState } from 'react';
 import { encodeGeohash, decodeGeohash } from '@/lib/geohash';
+import { debounce } from 'lodash';
 
 interface featureType {
   name: string,
@@ -30,7 +31,6 @@ const viewState = {
   latitude: 40.7830603,
   zoom: 12
 };
-
 
 
 const censusCategory:featureType[] = [
@@ -62,16 +62,19 @@ export default function Home() {
       .catch(err => console.error('path is not loaded', err));
   }
 
+  const mapRender = debounce((e) => {
+    mapLoad(e);
+  }, 2000);
+
+
   function mapLoad(e) {
     const bounds = e.target.getBounds();
     const ne = bounds.getNorthEast(); // 북동쪽 꼭지점 좌표
     const sw = bounds.getSouthWest(); // 남서쪽 꼭지점 좌표
-    console.log(ne, sw);
 
     // 북동쪽과 남서쪽 꼭지점의 Geohash 생성
     const neGeohash = encodeGeohash(ne.lat, ne.lng, geohashPrecision);
     const swGeohash = encodeGeohash(sw.lat, sw.lng, geohashPrecision);
-    console.log(neGeohash, swGeohash);
 
     const latDiff = 180/(8**Math.floor(geohashPrecision/2)*4**(geohashPrecision - Math.floor(geohashPrecision/2)));
     const lngDiff = 360/(4**Math.floor(geohashPrecision/2)*8**(geohashPrecision - Math.floor(geohashPrecision/2)));
@@ -84,7 +87,6 @@ export default function Home() {
         geohashes.add(hash);
       }
     }
-    console.log(geohashes);
     // Geohash bounds list 생성
     const geohashFeatures = [...geohashes].map((hash:string):geohashFeatureType=>{
       const {sw, ne} =decodeGeohash(hash);
@@ -141,6 +143,7 @@ export default function Home() {
         mapboxAccessToken='pk.eyJ1IjoidmljdG9yaWEwNDA2IiwiYSI6ImNsbTdtN3A2ODAxdXkza3MydHRxZm94MHMifQ.7G3rMAvrocvBXl0XYX8WGA'
         style={{width: '100vw', height: '100vh'}}
         onLoad = {mapLoad}
+        onRender = {mapRender}
       >
         <Source type="geojson" data={geojson}>
           <Layer
