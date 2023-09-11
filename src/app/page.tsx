@@ -1,14 +1,10 @@
 "use client";
 
-import Map, {Source, Layer} from '@/lib/useClientModules';
+import Map, {Source, Layer, Popup, MapLayerMouseEvent} from '@/lib/useClientModules';
 import { useEffect, useState } from 'react';
 import { encodeGeohash, decodeGeohash } from '@/lib/geohash';
 import { debounce } from 'lodash';
-
-interface featureType {
-  name: string,
-  type: string,
-}
+import ControllPanel from '@/components/ControllPanel';
 
 interface geohashFeatureType {
   type: 'Feature',
@@ -26,12 +22,10 @@ interface geohashJsonType {
   features: geohashFeatureType[],
 };
 
-const viewState = {
-  longitude: -73.9712488,
-  latitude: 40.7830603,
-  zoom: 12
+interface featureType {
+  name: string,
+  type: string,
 };
-
 
 const censusCategory:featureType[] = [
   {name: 'ALAND', type: 'quantitative'},
@@ -40,10 +34,37 @@ const censusCategory:featureType[] = [
   {name: 'NAMELSAD', type: 'categorical'},
 ]
 
+const viewState = {
+  longitude: -73.9712488,
+  latitude: 40.7830603,
+  zoom: 12
+};
+
+const mapSetting = {
+  minZoom: 11,
+}
+
+// function getRandomHexColor() {
+//   const letters = '0123456789ABCDEF';
+//   let color = '#';
+//   for (let i = 0; i < 6; i++) {
+//     color += letters[Math.floor(Math.random() * 16)];
+//   }
+//   return color;
+// }
+
+const colorList = [..."0123456789ABCDEF"].reverse().map((e:string)=>(
+  `#${e}${e}${e}`
+));
+
+
 export default function Home() {
   const [geojson, setGeojson] = useState();
   const [pathData, setPathData] = useState();
-  const [category, setCategory] = useState<string>();
+  const [category, setCategory] = useState<featureType>();
+  const [cateStyle, setCateStyle] = useState<any[]>();
+
+  const [geoBounds, setGeoBounds] = useState();
   const [geohashPrecision, setGeohashPrecision] = useState(6);
   const [geohash, setGeohash] = useState<geohashJsonType>();
 
@@ -55,22 +76,48 @@ export default function Home() {
       .catch(err => console.error('Could not load data', err));
     }, []);
 
-  function getPath() {
-    fetch('https://deepurban.kaist.ac.kr/urban/geojson/sample_trace.geojson')
-      .then(resp => resp.json())
-      .then(json => setPathData(json))
-      .catch(err => console.error('path is not loaded', err));
-  }
+  useEffect(()=>{
+    if (!geojson) return;
+    const catProperties = new Set(geojson.features.map(({properties})=> {
+      return properties[category?.name];
+    }));
+    const styleList = [];
+    switch (category?.type){
+      case 'categorical':
+        [...catProperties].forEach((e:string, i:number)=>{
+          styleList.push(e);
+          styleList.push(colorList[i]);
+        })
+        setCateStyle([
+          'match',
+          ['get', category?.name],
+          ...styleList,
+          'white',
+        ]);
+        break;
+      case 'quantitative':
+        const max = Math.max(...[...catProperties].map((e)=>(Number(e))));
+        const min = Math.min(...[...catProperties].map((e)=>(Number(e))));
+        console.log(max, min);
+        const diff = Math.floor((max - min) / 10);
+        for (var i=0;i<11;i+=1) {
+          styleList.push(min+diff*i);
+          styleList.push(colorList[i]);
+        }
+        setCateStyle([
+          'interpolate',
+          ['linear'],
+          ['get', category?.name],
+          ...styleList,
+        ]);
+        break;
+    }
+  }, [category]);
 
-  const mapRender = debounce((e) => {
-    mapLoad(e);
-  }, 2000);
-
-
-  function mapLoad(e) {
-    const bounds = e.target.getBounds();
-    const ne = bounds.getNorthEast(); // 북동쪽 꼭지점 좌표
-    const sw = bounds.getSouthWest(); // 남서쪽 꼭지점 좌표
+  useEffect(()=>{
+    if (!geoBounds) return;
+    const ne = geoBounds.getNorthEast(); // 북동쪽 꼭지점 좌표
+    const sw = geoBounds.getSouthWest(); // 남서쪽 꼭지점 좌표
 
     // 북동쪽과 남서쪽 꼭지점의 Geohash 생성
     const neGeohash = encodeGeohash(ne.lat, ne.lng, geohashPrecision);
@@ -112,47 +159,48 @@ export default function Home() {
       type: 'FeatureCollection',
       features: geohashFeatures,
     })
+  }, [geoBounds]);
+
+  function getPath() {
+    fetch('https://deepurban.kaist.ac.kr/urban/geojson/sample_trace.geojson')
+      .then(resp => resp.json())
+      .then(json => setPathData(json))
+      .catch(err => console.error('path is not loaded', err));
   }
+
+  const mapRender = debounce((e) => {
+    setGeoBounds(e.target.getBounds());
+  }, 1000);
+
   return (
     <main>
-      <div className='fixed w-40 h-60 m-12 p-4 bg-white rounded-xl z-10 shadow'>
-        {/*<label
-          for="countries"
-          className="block mb-2 text-sm font-medium text-gray-900"
-        >
-          Select Category
-        </label>
-        <select
-          id="countries"
-          className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-          onChange={(e)=>{setCategory(e.target.value)}}
-        >
-          {censusCategory.map((item:featureType, i:number)=>(
-            <option value={item.name} key={i}>{item.name}</option>
-          ))}
-        </select>
-          */}
-        <button
-          className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-          onClick={getPath}
-        >Get Path</button>
-      </div>
+      <ControllPanel
+        getPath = {getPath}
+        setCategory={setCategory}
+      />
       <Map
         initialViewState={viewState}
         mapStyle="mapbox://styles/mapbox/light-v11"
         mapboxAccessToken='pk.eyJ1IjoidmljdG9yaWEwNDA2IiwiYSI6ImNsbTdtN3A2ODAxdXkza3MydHRxZm94MHMifQ.7G3rMAvrocvBXl0XYX8WGA'
         style={{width: '100vw', height: '100vh'}}
-        onLoad = {mapLoad}
         onRender = {mapRender}
+        {...mapSetting}
       >
         <Source type="geojson" data={geojson}>
+          {!!category && <Layer
+            id="geojsonLayerCategory"
+            type="fill"
+            paint={{
+              'fill-color': cateStyle,
+            }}
+            beforeId="geojsonLayer"
+          />}
           <Layer
             id="geojsonLayer"
             type="line"
             paint={{
               'line-color': 'gray',
             }}
-            
           />
         </Source>
         {!!pathData &&
