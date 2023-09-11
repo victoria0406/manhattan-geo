@@ -59,6 +59,9 @@ const colorList = [..."0123456789ABCDEF"].reverse().map((e:string)=>(
 
 
 export default function Home() {
+  const [isCensus, setIsCensus] = useState(true);
+  const [isGeohash, setIsGeohash] = useState(true);
+
   const [geojson, setGeojson] = useState();
   const [pathData, setPathData] = useState();
   const [category, setCategory] = useState<featureType>();
@@ -177,6 +180,10 @@ export default function Home() {
       <ControllPanel
         getPath = {getPath}
         setCategory={setCategory}
+        isGeohash={isGeohash}
+        setIsGeohash={setIsGeohash}
+        isCensus={isCensus}
+        setIsCensus={setIsCensus}
       />
       <Map
         initialViewState={viewState}
@@ -186,7 +193,7 @@ export default function Home() {
         onRender = {mapRender}
         {...mapSetting}
       >
-        <Source type="geojson" data={geojson}>
+        {isCensus && <Source type="geojson" data={geojson}>
           {!!category && <Layer
             id="geojsonLayerCategory"
             type="fill"
@@ -202,7 +209,7 @@ export default function Home() {
               'line-color': 'gray',
             }}
           />
-        </Source>
+        </Source>}
         {!!pathData &&
           <Source type="geojson" data={pathData}>
           <Layer
@@ -216,7 +223,7 @@ export default function Home() {
           />
         </Source>
         }
-        {!!geohash &&<Source type="geojson" data={geohash}>
+        {!!geohash && isGeohash &&<Source type="geojson" data={geohash}>
           <Layer
             id="geohashLayer"
             type="line"

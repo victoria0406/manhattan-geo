@@ -29,25 +29,38 @@ const censusCategory:featureType[] = [
 </select>
 */}
 
-export default function ControllPanel ({getPath, setCategory}:{getPath: Function, setCategory:Function}) {
-    return (<div className='fixed w-40 h-80 m-8 p-4 bg-white rounded-xl z-10 shadow'>
-          {censusCategory.map((item:featureType, i:number)=>(
-            <div className="flex items-center mb-4" key={i}>
-                <input
-                  id={`radio-${i}`}
-                  type="radio"
-                  value={item.name}
-                  name="default-radio"
-                  className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 dark:ring-offset-gray-800 dark:bg-gray-700 dark:border-gray-600" 
-                  onChange={()=>setCategory(item)}
-                />
-                <label for={`radio-${i}`} className="ml-2 text-sm font-medium text-gray-900">{item.name}</label>
-            </div>
-          ))}
-        <button
-          className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-          onClick={()=>getPath()}
-        >Get Path</button>
-      </div>
-    );
+export default function ControllPanel ({getPath, setCategory, isGeohash, setIsGeohash, isCensus, setIsCensus}:{getPath: Function, setCategory:Function, isGeohash:boolean, setIsGeohash:Function, isCensus:boolean, setIsCensus:Function}) {
+    return (
+    <div className='fixed w-56 h-80 m-8 p-4 bg-white rounded-xl z-10 shadow'>
+      <h3 className="text-gray-900">Grids</h3>
+      <label className="relative inline-flex items-center cursor-pointer">
+        <input type="checkbox" className="sr-only peer" checked={isGeohash} onChange={(e)=>{setIsGeohash(e.currentTarget.checked)}}/>
+        <div className="w-11 h-6 bg-gray-200 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+        <span className="ml-3 text-sm font-medium text-gray-900">Use Geohash</span>
+      </label>
+      <label className="relative inline-flex items-center cursor-pointer">
+        <input type="checkbox" className="sr-only peer" checked={isCensus} onChange={(e)=>{setIsCensus(e.currentTarget.checked)}}/>
+        <div className="w-11 h-6 bg-gray-200 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+        <span className="ml-3 text-sm font-medium text-gray-900">Use Census</span>
+      </label>
+      <h3 className="text-gray-900">Filtering Census</h3>
+      {censusCategory.map((item:featureType, i:number)=>(
+        <div className="flex items-center mb-4" key={i}>
+            <input
+              id={`radio-${i}`}
+              type="radio"
+              value={item.name}
+              name="default-radio"
+              className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 dark:ring-offset-gray-800 dark:bg-gray-700 dark:border-gray-600" 
+              onChange={()=>setCategory(item)}
+            />
+            <label for={`radio-${i}`} className="ml-2 text-sm font-medium text-gray-900">{item.name}</label>
+        </div>
+      ))}
+    <button
+      className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+      onClick={()=>getPath()}
+    >Get Path</button>
+  </div>
+  );
 }
