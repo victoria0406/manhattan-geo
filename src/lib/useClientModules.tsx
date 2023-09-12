@@ -1,6 +1,6 @@
 "use client";
 
-import Map, {Source, Layer, Popup, MapLayerMouseEvent} from 'react-map-gl';
+import Map, {Source, Layer, Popup, MapLayerMouseEvent, LngLatBounds} from 'react-map-gl';
 
 export default Map;
 export {
@@ -10,4 +10,5 @@ export {
 }
 export type {
     MapLayerMouseEvent,
+    LngLatBounds,
 }

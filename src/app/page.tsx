@@ -1,10 +1,12 @@
 "use client";
 
-import Map, {Source, Layer, Popup, MapLayerMouseEvent} from '@/lib/useClientModules';
+import Map, {Source, Layer, Popup, MapLayerMouseEvent, LngLatBounds} from '@/lib/useClientModules';
+import type {FeatureCollection} from 'geojson';
 import { useEffect, useState } from 'react';
 import { encodeGeohash, decodeGeohash } from '@/lib/geohash';
 import { debounce } from 'lodash';
 import ControllPanel from '@/components/ControllPanel';
+import { StyleFunction } from 'mapbox-gl';
 
 interface geohashFeatureType {
   type: 'Feature',
@@ -62,13 +64,13 @@ export default function Home() {
   const [isCensus, setIsCensus] = useState(true);
   const [isGeohash, setIsGeohash] = useState(true);
 
-  const [geojson, setGeojson] = useState();
+  const [geojson, setGeojson] = useState<FeatureCollection>();
   const [pathData, setPathData] = useState();
   const [category, setCategory] = useState<featureType>();
   const [cateStyle, setCateStyle] = useState<any[]>();
 
-  const [geoBounds, setGeoBounds] = useState();
-  const [geohashPrecision, setGeohashPrecision] = useState(6);
+  const [geoBounds, setGeoBounds] = useState<LngLatBounds>();
+  const [geohashPrecision, setGeohashPrecision] = useState<number>(6);
   const [geohash, setGeohash] = useState<geohashJsonType>();
 
   useEffect(()=>{
@@ -82,9 +84,9 @@ export default function Home() {
   useEffect(()=>{
     if (!geojson) return;
     const catProperties = new Set(geojson.features.map(({properties})=> {
-      return properties[category?.name];
+      return properties ? category ? properties[category?.name] :null : null;
     }));
-    const styleList = [];
+    const styleList : (string|number)[] = [];
     switch (category?.type){
       case 'categorical':
         [...catProperties].forEach((e:string, i:number)=>{
@@ -138,8 +140,8 @@ export default function Home() {
       }
     }
     // Geohash bounds list 생성
-    const geohashFeatures = [...geohashes].map((hash:string):geohashFeatureType=>{
-      const {sw, ne} =decodeGeohash(hash);
+    const geohashFeatures = [...geohashes].map((hash):geohashFeatureType=>{
+      const {sw, ne} =decodeGeohash(String(hash));
       const coordinates = [
         [sw.lng, sw.lat],
         [ne.lng, sw.lat],
@@ -150,7 +152,7 @@ export default function Home() {
       return {
         type: "Feature",
         properties: {
-          geohash: hash,
+          geohash: String(hash),
         },
         geometry: {
           type: "Polygon",

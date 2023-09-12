@@ -59,7 +59,7 @@ export default function ControllPanel (
         <span className="ml-3 text-sm font-medium text-gray-900">Use Census</span>
       </label>
       <h3 className="text-gray-900 mb-4">Controlling Geohash</h3>
-      <label for="default-range" class="block mb-2 text-sm font-medium text-gray-900">Geohash Precision</label>
+      <label htmlFor="default-range" className="block mb-2 text-sm font-medium text-gray-900">Geohash Precision</label>
       <input id="default-range" type="range" value={slideValue} min={4} max={7} onChange={(e:React.ChangeEvent<HTMLInputElement>)=>setSlideValue(Number(e.target.value))} className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"></input>
       <h3 className="text-gray-900 my-4">Filtering Census</h3>
         <div className="flex items-center mb-4">
@@ -70,7 +70,7 @@ export default function ControllPanel (
               className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 dark:ring-offset-gray-800 dark:bg-gray-700 dark:border-gray-600" 
               onChange={()=>setCategory(null)}
             />
-            <label for={`radio-null`} className="ml-2 text-sm font-medium text-gray-900">No Filter</label>
+            <label htmlFor={`radio-null`} className="ml-2 text-sm font-medium text-gray-900">No Filter</label>
         </div>
       {censusCategory.map((item:featureType, i:number)=>(
         <div className="flex items-center mb-4" key={i}>
@@ -82,7 +82,7 @@ export default function ControllPanel (
               className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 dark:ring-offset-gray-800 dark:bg-gray-700 dark:border-gray-600" 
               onChange={()=>setCategory(item)}
             />
-            <label for={`radio-${i}`} className="ml-2 text-sm font-medium text-gray-900">{item.name}</label>
+            <label htmlFor={`radio-${i}`} className="ml-2 text-sm font-medium text-gray-900">{item.name}</label>
         </div>
       ))}
     <button
