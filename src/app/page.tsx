@@ -162,7 +162,7 @@ export default function Home() {
       type: 'FeatureCollection',
       features: geohashFeatures,
     })
-  }, [geoBounds]);
+  }, [geoBounds, geohashPrecision]);
 
   function getPath() {
     fetch('https://deepurban.kaist.ac.kr/urban/geojson/sample_trace.geojson')
@@ -173,7 +173,7 @@ export default function Home() {
 
   const mapRender = debounce((e) => {
     setGeoBounds(e.target.getBounds());
-  }, 1000);
+  },500);
 
   return (
     <main>
@@ -184,6 +184,8 @@ export default function Home() {
         setIsGeohash={setIsGeohash}
         isCensus={isCensus}
         setIsCensus={setIsCensus}
+        geohashPrecision={geohashPrecision}
+        setGeohashPrecision={setGeohashPrecision}
       />
       <Map
         initialViewState={viewState}
