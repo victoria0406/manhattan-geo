@@ -46,7 +46,7 @@ export default function ControllPanel (
       };
     }, [slideValue]);
     return (
-    <div className='fixed w-56 m-8 p-4 bg-white rounded-xl z-10 shadow'>
+    <div className='absolute w-56 m-8 p-4 bg-white rounded-xl z-10 shadow'>
       <h3 className="text-gray-900 mb-4">Grids</h3>
       <label className="relative inline-flex items-center cursor-pointer">
         <input type="checkbox" className="sr-only peer" checked={isGeohash} onChange={(e)=>{setIsGeohash(e.currentTarget.checked)}}/>

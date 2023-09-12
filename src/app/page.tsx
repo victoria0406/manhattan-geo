@@ -5,8 +5,9 @@ import type {FeatureCollection} from 'geojson';
 import { useEffect, useState } from 'react';
 import { encodeGeohash, decodeGeohash } from '@/lib/geohash';
 import { debounce } from 'lodash';
+
 import ControllPanel from '@/components/ControllPanel';
-import { StyleFunction } from 'mapbox-gl';
+import Loading from '@/components/Loading';
 
 interface geohashFeatureType {
   type: 'Feature',
@@ -63,7 +64,8 @@ const colorList = [..."0123456789ABCDEF"].reverse().map((e:string)=>(
 export default function Home() {
   const [isCensus, setIsCensus] = useState(true);
   const [isGeohash, setIsGeohash] = useState(true);
-
+  
+  const [isMapLoad, setIsMapLoad] = useState<boolean>(false);
   const [geojson, setGeojson] = useState<FeatureCollection>();
   const [pathData, setPathData] = useState();
   const [category, setCategory] = useState<featureType>();
@@ -178,7 +180,8 @@ export default function Home() {
   },500);
 
   return (
-    <main>
+    <main className='relative'>
+      {(!isMapLoad || !geohash || !geojson) && <Loading />}
       <ControllPanel
         getPath = {getPath}
         setCategory={setCategory}
@@ -194,6 +197,7 @@ export default function Home() {
         mapStyle="mapbox://styles/mapbox/light-v11"
         mapboxAccessToken='pk.eyJ1IjoidmljdG9yaWEwNDA2IiwiYSI6ImNsbTdtN3A2ODAxdXkza3MydHRxZm94MHMifQ.7G3rMAvrocvBXl0XYX8WGA'
         style={{width: '100vw', height: '100vh'}}
+        onLoad={()=>setIsMapLoad(true)}
         onRender = {mapRender}
         {...mapSetting}
       >
