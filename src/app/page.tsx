@@ -8,6 +8,7 @@ import { debounce } from 'lodash';
 
 import ControllPanel from '@/components/ControllPanel';
 import Loading from '@/components/Loading';
+import PathPannel from '@/components/PathPannel';
 
 interface geohashFeatureType {
   type: 'Feature',
@@ -56,10 +57,42 @@ const mapSetting = {
 //   return color;
 // }
 
-const colorList = [..."0123456789ABCDEF"].reverse().map((e:string)=>(
-  `#${e}${e}${e}`
-));
+const quantitativeColorList = [
+  "#08306b",
+  "#08519c",
+  "#2171b5",
+  "#4292c6",
+  "#6baed6",
+  "#9ecae1",
+  "#c6dbef",
+  "#deebf7",
+  "#f7fbff",
+  "#eff3ff",
+  "#bdd7e7"
+].reverse();
 
+const categoricalColorList = [
+  "#FF5733",
+  "#33FF57",
+  "#5733FF",
+  "#FF3399",
+  "#33FFFF",
+  "#FF9933",
+  "#3366FF",
+  "#FF33CC",
+  "#33CCFF",
+  "#FFCC33",
+  "#FF3366",
+  "#66FF33",
+  "#CC33FF",
+  "#33FFCC",
+  "#9933FF",
+  "#FFFF33",
+  "#66CCFF",
+  "#FF66CC",
+  "#66FFCC",
+  "#CC66FF"
+]
 
 export default function Home() {
   const [isCensus, setIsCensus] = useState(true);
@@ -75,6 +108,9 @@ export default function Home() {
   const [geohashPrecision, setGeohashPrecision] = useState<number>(6);
   const [geohash, setGeohash] = useState<geohashJsonType>();
 
+  const [odData, setOdData] = useState<FeatureCollection>();
+  const [odDataYear, setOdDataYear] = useState('2009');
+
   useEffect(()=>{
     setGeojson(undefined);
     fetch('https://deepurban.kaist.ac.kr/urban/geojson/manhattan_new_york.geojson')
@@ -82,6 +118,22 @@ export default function Home() {
       .then(json => setGeojson(json))
       .catch(err => console.error('Could not load data', err));
     }, []);
+
+  useEffect(()=>{
+    setOdData(undefined);
+    fetch('http://deepurban.kaist.ac.kr/urban/geojson/nyc_taxi_trajectory_generated_sample.geojson')
+      .then(resp => resp.json())
+      .then(json => {
+        // setOdData(json);
+        json.features.forEach(({properties}, i)=>{
+          json.features[i].properties.pickup_year = properties.pickup_datetime.split('-')[0]
+        });
+        console.log(json);
+        setOdData(json);
+        // console.log(timeFeatures.sort());
+      })
+      .catch(err => console.error('Could not load data', err));
+  }, [])
 
   useEffect(()=>{
     if (!geojson) return;
@@ -93,7 +145,7 @@ export default function Home() {
       case 'categorical':
         [...catProperties].forEach((e:string, i:number)=>{
           styleList.push(e);
-          styleList.push(colorList[i]);
+          styleList.push(categoricalColorList[i]);
         })
         setCateStyle([
           'match',
@@ -109,8 +161,9 @@ export default function Home() {
         const diff = Math.floor((max - min) / 10);
         for (var i=0;i<11;i+=1) {
           styleList.push(min+diff*i);
-          styleList.push(colorList[i]);
+          styleList.push(quantitativeColorList[i]);
         }
+        console.log(styleList);
         setCateStyle([
           'interpolate',
           ['linear'],
@@ -192,6 +245,11 @@ export default function Home() {
         geohashPrecision={geohashPrecision}
         setGeohashPrecision={setGeohashPrecision}
       />
+      <PathPannel
+        getPath={getPath}
+        odDataYear={odDataYear}
+        setOdDataYear={setOdDataYear}
+      />
       <Map
         initialViewState={viewState}
         mapStyle="mapbox://styles/mapbox/light-v11"
@@ -241,6 +299,20 @@ export default function Home() {
             
           />
         </Source>}
+        {!!odData &&
+          <Source type="geojson" data={odData}>
+          <Layer
+            id="odLayer"
+            type="line"
+            paint={{
+              'line-color': 'blue',
+              'line-opacity': 0.3,
+              'line-width': 4
+            }}
+            filter={['==', 'pickup_year', odDataYear]}
+          />
+        </Source>
+        }
       </Map>
     </main>
   )
