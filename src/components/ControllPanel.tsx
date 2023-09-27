@@ -37,17 +37,14 @@ export default function ControllPanel (
 ) {
     const [slideValue, setSlideValue] = useState<number>(geohashPrecision);
     useEffect(()=>{
-      const timer = setTimeout(() => {
-        console.log(slideValue);
-        return setGeohashPrecision(slideValue);
-      }, 500);
+      const timer = setTimeout(() => setGeohashPrecision(slideValue), 500);
       return () => {
         clearTimeout(timer);
       };
     }, [slideValue]);
     return (
     <div className='absolute w-56 m-8 p-4 bg-white rounded-xl z-10 shadow'>
-      <h3 className="text-gray-900 mb-4">Grids</h3>
+      <h3 className="text-gray-900 mb-4 font-medium">Grids</h3>
       <label className="relative inline-flex items-center cursor-pointer">
         <input type="checkbox" className="sr-only peer" checked={isGeohash} onChange={(e)=>{setIsGeohash(e.currentTarget.checked)}}/>
         <div className="w-11 h-6 bg-gray-200 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
@@ -58,10 +55,10 @@ export default function ControllPanel (
         <div className="w-11 h-6 bg-gray-200 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
         <span className="ml-3 text-sm font-medium text-gray-900">Use Census</span>
       </label>
-      <h3 className="text-gray-900 my-4">Controlling Geohash</h3>
+      <h3 className="text-gray-900 my-4 font-medium">Controlling Geohash</h3>
       <label htmlFor="default-range" className="block mb-2 text-sm font-medium text-gray-900">Geohash Precision: {slideValue}</label>
       <input id="default-range" type="range" value={slideValue} min={4} max={7} onChange={(e:React.ChangeEvent<HTMLInputElement>)=>setSlideValue(Number(e.target.value))} className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"></input>
-      <h3 className="text-gray-900 my-4">Filtering Census</h3>
+      <h3 className="text-gray-900 my-4 font-medium">Filtering Census</h3>
         <div className="flex items-center mb-4">
             <input
               id={`radio-null`}

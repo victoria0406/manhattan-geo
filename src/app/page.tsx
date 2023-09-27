@@ -10,6 +10,21 @@ import ControllPanel from '@/components/ControllPanel';
 import Loading from '@/components/Loading';
 import PathPannel from '@/components/PathPannel';
 
+const LOCATION = 'pemsd7'; // metr-la, pems-bay, pemsd7 중 하나 입력
+const STARTVIEW = LOCATION === 'metr-la' ? {
+  longitude: -118.3992154,
+  latitude: 34.1114597,
+  zoom: 10,
+} : LOCATION === 'pems-bay' ? {
+  longitude:  -121.92809670018664,
+  latitude: 37.34048422339241,
+  zoom: 10
+} : {
+  longitude: -118.21073650795017,
+  latitude: 33.92243661859156,
+  zoom: 10
+};
+
 interface geohashFeatureType {
   type: 'Feature',
   properties: {
@@ -39,23 +54,12 @@ const censusCategory:featureType[] = [
 ]
 
 const viewState = {
-  longitude: -73.9712488,
-  latitude: 40.7830603,
-  zoom: 12
+  ...STARTVIEW,
 };
 
 const mapSetting = {
-  minZoom: 11,
+  minZoom: 8,
 }
-
-// function getRandomHexColor() {
-//   const letters = '0123456789ABCDEF';
-//   let color = '#';
-//   for (let i = 0; i < 6; i++) {
-//     color += letters[Math.floor(Math.random() * 16)];
-//   }
-//   return color;
-// }
 
 const quantitativeColorList = [
   "#08306b",
@@ -105,11 +109,22 @@ export default function Home() {
   const [cateStyle, setCateStyle] = useState<any[]>();
 
   const [geoBounds, setGeoBounds] = useState<LngLatBounds>();
-  const [geohashPrecision, setGeohashPrecision] = useState<number>(6);
+  const [geohashPrecision, setGeohashPrecision] = useState<number>(1);
   const [geohash, setGeohash] = useState<geohashJsonType>();
 
   const [odData, setOdData] = useState<FeatureCollection>();
+
   const [odDataYear, setOdDataYear] = useState('2009');
+
+  const [odPaths, setOdPaths] = useState<{string: string, key: string}[]>([]);
+  const [selectedPath, setSelectedPath] = useState<String|null>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [playPathGeoJson, setPlayPathGeoJson] = useState(null);
+
+  const [sensorData, setSensorData] = useState<FeatureCollection>();
+  const [sensorAdjData, setSensorAdjData] = useState();
+  const [selectedSensor, setSelectedSensor] = useState<string>();
+  const [sensorKeyValues, setSensorKeyValues] = useState<string[]>([]);
 
   useEffect(()=>{
     setGeojson(undefined);
@@ -121,19 +136,36 @@ export default function Home() {
 
   useEffect(()=>{
     setOdData(undefined);
-    fetch('http://deepurban.kaist.ac.kr/urban/geojson/nyc_taxi_trajectory_generated_sample.geojson')
+    fetch(`https://deepurban.kaist.ac.kr/urban/geojson/traffic/${LOCATION}-1000.geojson`)
       .then(resp => resp.json())
       .then(json => {
-        // setOdData(json);
-        json.features.forEach(({properties}, i)=>{
+        /*json.features.forEach(({properties}, i)=>{
           json.features[i].properties.pickup_year = properties.pickup_datetime.split('-')[0]
-        });
-        console.log(json);
+        });*/
         setOdData(json);
-        // console.log(timeFeatures.sort());
+        console.log(json);
       })
       .catch(err => console.error('Could not load data', err));
-  }, [])
+  }, []);
+
+  useEffect(()=> {
+    const geohashPath = odData?.features.map(({geometry, properties})=>({
+      string: properties?.path_sensors,
+      key: properties?.key,
+    }));
+    if (geohashPath) setOdPaths(geohashPath);
+  }, [odData, odDataYear]);
+
+  useEffect(()=>{
+    setOdData(undefined);
+    fetch(`https://deepurban.kaist.ac.kr/urban/geojson/traffic/${LOCATION}-sensors.geojson`)
+      .then(resp => resp.json())
+      .then(json => {
+        console.log(json);
+        setSensorData(json);
+      })
+      .catch(err => console.error('Could not load data', err));
+  }, []);
 
   useEffect(()=>{
     if (!geojson) return;
@@ -157,13 +189,11 @@ export default function Home() {
       case 'quantitative':
         const max = Math.max(...[...catProperties].map((e)=>(Number(e))));
         const min = Math.min(...[...catProperties].map((e)=>(Number(e))));
-        console.log(max, min);
         const diff = Math.floor((max - min) / 10);
         for (var i=0;i<11;i+=1) {
           styleList.push(min+diff*i);
           styleList.push(quantitativeColorList[i]);
         }
-        console.log(styleList);
         setCateStyle([
           'interpolate',
           ['linear'],
@@ -173,6 +203,33 @@ export default function Home() {
         break;
     }
   }, [category]);
+
+  useEffect(()=>{
+    setSensorAdjData(undefined);
+    fetch(`https://deepurban.kaist.ac.kr/urban/geojson/traffic/${LOCATION}-sensor-adjmx.json`)
+      .then(resp => resp.json())
+      .then(json => {
+        setSensorAdjData(json);
+      })
+      .catch(err => console.error('Could not load data', err));
+  }, [])
+
+  useEffect(()=>{
+    if (selectedSensor && sensorAdjData) {
+      const tArray = []
+      const keys = Object.keys(sensorAdjData[selectedSensor]);
+      const values = Object.values(sensorAdjData[selectedSensor]);
+      for (let i=0; i< keys.length; i++) {
+        tArray.push(keys[i]);
+        tArray.push(values[i] > 0.001 ? String(values[i].toFixed(3)): '');
+      }
+      setSensorKeyValues(tArray);
+    }
+  }, [selectedSensor, sensorAdjData])
+
+  useEffect(()=> {
+    setSelectedSensor(null);
+  }, [selectedPath]);
 
   useEffect(()=>{
     if (!geoBounds) return;
@@ -221,6 +278,36 @@ export default function Home() {
     })
   }, [geoBounds, geohashPrecision]);
 
+  /*useEffect(()=>{
+    if (isPlaying) {
+      const filteredFeature = odData?.features.filter(({properties})=>(properties.key===selectedPath));
+      let idx = 2;
+      console.log(filteredFeature);
+      const maxIdx = filteredFeature[0].geometry.coordinates.length-1;
+      const interval = setInterval(()=>{
+        if (idx === maxIdx) {
+          clearInterval(interval);
+          setIsPlaying(false);
+        } else {
+          const newGeojson = odData;
+          console.log([{
+            ...filteredFeature[0],
+            geometry: filteredFeature[0].geometry.coordinates.slice(0, idx),
+          }]);
+          Object.assign(newGeojson, {
+            ...odData,
+            features: [{
+              ...filteredFeature[0],
+              geometry: filteredFeature[0].geometry.coordinates.slice(0, idx),
+            }],
+          });
+          setPlayPathGeoJson(newGeojson);
+          idx += 1;
+        }
+      }, 500);
+    }
+  }, [isPlaying]);*/
+
   function getPath() {
     fetch('https://deepurban.kaist.ac.kr/urban/geojson/sample_trace.geojson')
       .then(resp => resp.json())
@@ -232,9 +319,20 @@ export default function Home() {
     setGeoBounds(e.target.getBounds());
   },500);
 
+  const onClick = (e) => {
+    console.log(e.lngLat);
+    const {lngLat} = e
+    const clickedSensor = sensorData?.features.find(({geometry}) => ((Math.abs(geometry.coordinates[0] - lngLat.lng) < 0.001 ) && (Math.abs(geometry.coordinates[1] - lngLat.lat) < 0.001)));
+    if (clickedSensor) {
+      console.log(clickedSensor);
+      setSelectedSensor(clickedSensor.properties.ssid === selectedSensor ? null :clickedSensor.properties.ssid);
+    }
+  }
+
   return (
     <main className='relative'>
-      {(!isMapLoad || !geohash || !geojson) && <Loading />}
+      {(!isMapLoad || !geohash || !geojson) && <Loading transparent={false}/>}
+      {!odData && <Loading transparent={true}/>}
       <ControllPanel
         getPath = {getPath}
         setCategory={setCategory}
@@ -246,9 +344,11 @@ export default function Home() {
         setGeohashPrecision={setGeohashPrecision}
       />
       <PathPannel
-        getPath={getPath}
+        paths={odPaths}
         odDataYear={odDataYear}
         setOdDataYear={setOdDataYear}
+        setSelectedPath={setSelectedPath}
+        setIsPlaying={setIsPlaying}
       />
       <Map
         initialViewState={viewState}
@@ -257,9 +357,10 @@ export default function Home() {
         style={{width: '100vw', height: '100vh'}}
         onLoad={()=>setIsMapLoad(true)}
         onRender = {mapRender}
+        onClick={onClick}
         {...mapSetting}
       >
-        {isCensus && <Source type="geojson" data={geojson}>
+        {isCensus && geojson && <Source type="geojson" data={geojson}>
           {!!category && <Layer
             id="geojsonLayerCategory"
             type="fill"
@@ -299,17 +400,89 @@ export default function Home() {
             
           />
         </Source>}
-        {!!odData &&
+        {!playPathGeoJson && !!odData &&
           <Source type="geojson" data={odData}>
           <Layer
             id="odLayer"
             type="line"
+            beforeId="sensorLayer"
+            paint={{
+              'line-color': selectedPath ? [
+                'match',
+                ['get', 'key'],
+                selectedPath, 'black', 
+                '#aaaaaa'
+              ] : '#444444',
+              'line-width': 2,
+              'line-opacity': selectedPath ? [
+                'match',
+                ['get', 'key'],
+                selectedPath, 1, 
+                0.01
+              ] : 0.5
+            }}
+            // filter={['==', 'pickup_year', odDataYear]}
+          />
+        </Source>
+        }
+        {!!playPathGeoJson &&
+          <Source type="geojson" data={playPathGeoJson}>
+          <Layer
+            id="odPathLayer"
+            type="line"
             paint={{
               'line-color': 'blue',
-              'line-opacity': 0.3,
               'line-width': 4
             }}
-            filter={['==', 'pickup_year', odDataYear]}
+          />
+        </Source>
+        }
+        {!playPathGeoJson && !!sensorData && !!sensorKeyValues &&
+          <Source type="geojson" data={sensorData}>
+          {!!selectedSensor && <Layer
+            id="sensorAdjLayer"
+            type="symbol"
+            layout={{
+              'text-field': ['match', ['get', 'ssid'], ...sensorKeyValues, ''],
+              'text-anchor': 'bottom',
+              'text-offset': [0, -1],
+            }}
+            filter={selectedPath ? ['in', 'ssid', ...odPaths.find(({key})=>selectedPath === key)?.string?.split(',')] : ['all']}
+          />}
+          <Layer
+            id="sensorLayer"
+            type="circle"
+            paint={{
+              'circle-stroke-width': 1, 
+              'circle-color': [
+              'interpolate',
+              ['linear'],
+              ['get', 'count'],
+              0, quantitativeColorList[0],
+              500, quantitativeColorList[1],
+              1000, quantitativeColorList[2],
+              1500, quantitativeColorList[3],
+              2000, quantitativeColorList[4],
+              2500, quantitativeColorList[5],
+              3000, quantitativeColorList[6],
+              3500, quantitativeColorList[7],
+              4000, quantitativeColorList[8],
+              4500, quantitativeColorList[9],
+              ],
+              'circle-radius': selectedSensor ? [
+                'match',
+                ['get', 'ssid'],
+                selectedSensor, 16,
+                4
+              ] : 4,
+              'circle-opacity': selectedSensor ? [
+                'match',
+                ['get', 'ssid'],
+                selectedSensor, 1,
+                0.2
+              ]: 1
+            }}
+            filter={selectedPath ? ['in', 'ssid', ...odPaths.find(({key})=>selectedPath === key)?.string?.split(',')] : ['all']}
           />
         </Source>
         }
