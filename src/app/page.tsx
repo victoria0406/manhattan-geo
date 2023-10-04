@@ -113,6 +113,7 @@ export default function Home() {
   const [geohash, setGeohash] = useState<geohashJsonType>();
 
   const [odData, setOdData] = useState<FeatureCollection>();
+  const [countMax, setCountMax] = useState<number>(5000);
 
   const [odDataYear, setOdDataYear] = useState('2009');
 
@@ -124,7 +125,10 @@ export default function Home() {
   const [sensorData, setSensorData] = useState<FeatureCollection>();
   const [sensorAdjData, setSensorAdjData] = useState();
   const [selectedSensor, setSelectedSensor] = useState<string>();
+  const [adjSensors, setAdjSensors] = useState<string[]>([]);
   const [sensorKeyValues, setSensorKeyValues] = useState<string[]>([]);
+
+  const [adjSensitivity, setAdjSensitivity] = useState<number>(0.1);
 
   useEffect(()=>{
     setGeojson(undefined);
@@ -163,6 +167,7 @@ export default function Home() {
       .then(json => {
         console.log(json);
         setSensorData(json);
+        setCountMax(Math.max(...json?.features.map(({geometry, properties})=>(properties?.count))));
       })
       .catch(err => console.error('Could not load data', err));
   }, []);
@@ -221,9 +226,10 @@ export default function Home() {
       const values = Object.values(sensorAdjData[selectedSensor]);
       for (let i=0; i< keys.length; i++) {
         tArray.push(keys[i]);
-        tArray.push(values[i] > 0.001 ? String(values[i].toFixed(3)): '');
+        tArray.push(values[i] > adjSensitivity ? String(values[i].toFixed(3)): '');
       }
       setSensorKeyValues(tArray);
+      setAdjSensors(keys.filter((_, i) => values[i] > adjSensitivity));
     }
   }, [selectedSensor, sensorAdjData])
 
@@ -453,33 +459,39 @@ export default function Home() {
             id="sensorLayer"
             type="circle"
             paint={{
-              'circle-stroke-width': 1, 
+              'circle-stroke-width': 1,
+              'circle-stroke-opacity':selectedSensor ? [
+                'case',
+                ['in', ['get', 'ssid'], ["literal", adjSensors]],
+                1,
+                0.3
+              ]: 1,
               'circle-color': [
               'interpolate',
               ['linear'],
               ['get', 'count'],
               0, quantitativeColorList[0],
-              500, quantitativeColorList[1],
-              1000, quantitativeColorList[2],
-              1500, quantitativeColorList[3],
-              2000, quantitativeColorList[4],
-              2500, quantitativeColorList[5],
-              3000, quantitativeColorList[6],
-              3500, quantitativeColorList[7],
-              4000, quantitativeColorList[8],
-              4500, quantitativeColorList[9],
+              countMax/10, quantitativeColorList[1],
+              countMax*2/10, quantitativeColorList[2],
+              countMax*3/10, quantitativeColorList[3],
+              countMax*4/10, quantitativeColorList[4],
+              countMax*5/10, quantitativeColorList[5],
+              countMax*6/10, quantitativeColorList[6],
+              countMax*7/10, quantitativeColorList[7],
+              countMax*8/10, quantitativeColorList[8],
+              countMax*9/10, quantitativeColorList[9],
               ],
               'circle-radius': selectedSensor ? [
                 'match',
                 ['get', 'ssid'],
-                selectedSensor, 16,
+                selectedSensor, 8,
                 4
               ] : 4,
               'circle-opacity': selectedSensor ? [
-                'match',
-                ['get', 'ssid'],
-                selectedSensor, 1,
-                0.2
+                'case',
+                ['in', ['get', 'ssid'], ["literal", adjSensors]],
+                1,
+                0.1
               ]: 1
             }}
             filter={selectedPath ? ['in', 'ssid', ...odPaths.find(({key})=>selectedPath === key)?.string?.split(',')] : ['all']}
