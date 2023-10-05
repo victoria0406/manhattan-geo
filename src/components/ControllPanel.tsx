@@ -32,8 +32,8 @@ const censusCategory:featureType[] = [
 */}
 
 export default function ControllPanel (
-  {getPath, setCategory, isGeohash, setIsGeohash, isCensus, setIsCensus, geohashPrecision, setGeohashPrecision}
-  :{getPath: Function, setCategory:Function, isGeohash:boolean, setIsGeohash:Function, isCensus:boolean, setIsCensus:Function, geohashPrecision:number, setGeohashPrecision:Function}
+  {setCategory, isGeohash, setIsGeohash, isCensus, setIsCensus, geohashPrecision, setGeohashPrecision}
+  :{setCategory:Function, isGeohash:boolean, setIsGeohash:Function, isCensus:boolean, setIsCensus:Function, geohashPrecision:number, setGeohashPrecision:Function}
 ) {
     const [slideValue, setSlideValue] = useState<number>(geohashPrecision);
     useEffect(()=>{

@@ -1,6 +1,6 @@
 export default function Loading({transparent}:{transparent:boolean}) {
     return(
-        <div className={`absolute w-full h-full ${transparent ? 'bg-white dark:bg-black dark:text-white' : ''} z-20 text-black flex justify-center items-center`}>
+        <div className={`absolute w-full h-full ${transparent ? '':'bg-white dark:bg-black dark:text-white'} z-20 text-black flex justify-center items-center`}>
             <div className="mr-4">Loading</div>
             <div role="status">
                 <svg aria-hidden="true" className="w-8 h-8 mr-2 text-gray-200 animate-spin dark:text-gray-600 fill-blue-600" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
