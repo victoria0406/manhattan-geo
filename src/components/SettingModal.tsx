@@ -1,13 +1,5 @@
 import { useEffect, useState } from "react";
 
-interface DataConfigType {
-    name: string,
-    odDataUrl: string,
-    geoDataUrl: string|null,
-    sensorDataUrl: string|null,
-    sensorAdjDataUrl: string|null,
-}
-
 const locationList = [
     'manhatton', 'metr-la', 'pems-bay', 'pemsd7'
 ]

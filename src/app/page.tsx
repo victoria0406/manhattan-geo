@@ -13,6 +13,7 @@ import useGeoHash from '@/hooks/useGeohash';
 import useSensor from '@/hooks/useSensor';
 import useOdData from '@/hooks/useOdData';
 import useGeoData from '@/hooks/useGeoData';
+import DataInputModal from '@/components/DataInputModal';
 
 
 interface geohashFeatureType {
@@ -82,63 +83,37 @@ export default function Home() {
     setSelectedSensor(null);
   }, [selectedPath]);
 
-  async function fetchSensorDataGroup(location:string, dataSize:number) {
-    if ([1000, 3000, 5000, 10000].includes(dataSize)) {
-      const odDataUrl = `https://deepurban.kaist.ac.kr/urban/geojson/traffic/${location}-${dataSize}.geojson`
-      const sensorDataUrl = `https://deepurban.kaist.ac.kr/urban/geojson/traffic/${location}-sensors.geojson`;
-      const sensorAdjDataUrl = `https://deepurban.kaist.ac.kr/urban/geojson/traffic/${location}-sensor-adjmx.json`;
-      const initailView = location === 'metr-la' ? {
-        longitude: -118.3992154,
-        latitude: 34.1114597,
-        zoom: 10,
-      } : location === 'pems-bay' ? {
-        longitude:  -121.92809670018664,
-        latitude: 37.34048422339241,
-        zoom: 10
-      } : {
-        longitude: -118.21073650795017,
-        latitude: 33.92243661859156,
-        zoom: 10
-      }
-      setViewState(initailView);
-      fetchOddata(odDataUrl);
-      fetchSensorData(sensorDataUrl);
-      setPathStringType('sensor');
-      fetchSensorAdjData(sensorAdjDataUrl);
-    } else {
-      console.error('Wrong data Size');
-    }
+  async function fetchSensorDataGroup(
+    pathUrl: string, dataUrl: string, extraUrl:string, 
+  ) {
+    fetchOddata(pathUrl);
+    fetchSensorData(dataUrl);
+    setPathStringType('sensor');
+    fetchSensorAdjData(extraUrl);
   };
 
-  async function fetchGeoDataGroup(location:string, dataSize:number) {
-    if ([1000, 2000, 3000, 10000].includes(dataSize)) {
-      const odDataUrl = `https://deepurban.kaist.ac.kr/urban/geojson/nyc_taxi_trajectory_generated_sample_${dataSize === 10000 ? 'large': dataSize}.geojson`;
-      const geoUrl = 'https://deepurban.kaist.ac.kr/urban/geojson/manhattan_new_york.geojson';
-      const initailView = {
-        longitude:  -73.9712488,
-        latitude: 40.7830603,
-        zoom: 12
-      }
-      setViewState(initailView);
-      setPathStringType('geohash');
-      fetchOddata(odDataUrl, {isParseHour: true, isParseMonth: false, isParseYear: false});
-      fetchGeoData(geoUrl);
-    } else {
-      console.error('Wrong data Size');
-    }
+  async function fetchGeoDataGroup(
+    pathUrl: string, dataUrl: string, filterUsage: boolean[]
+  ) {
+    setPathStringType('geohash');
+    fetchOddata(pathUrl, {isParseHour: filterUsage[2], isParseMonth: filterUsage[1], isParseYear: filterUsage[0]});
+    fetchGeoData(dataUrl);
   }
 
-  async function fetchDatas(location:string, dataSize:number){
-    switch (location) {
-      case 'metr-la': 
-      case 'pems-bay':
-      case 'pemsd7':
-        await fetchSensorDataGroup(location, dataSize);
+  async function fetchDatas(
+    dataType: string, pathUrl: string, dataUrl: string, extraUrl:string, initailView:ViewStateType, filterUsage: boolean[]
+  ){
+    switch (dataType) {
+      case 'geo':
+        await fetchGeoDataGroup(pathUrl, dataUrl, filterUsage);
         break;
-      case 'manhatton':
-        await fetchGeoDataGroup(location, dataSize);
+      case 'sensor':
+        await fetchSensorDataGroup(pathUrl, dataUrl, extraUrl);
+        break;
+      default:
         break;
     }
+    setViewState(initailView);
     setIsSetted(true);
   }
 
@@ -154,7 +129,7 @@ export default function Home() {
 
   return (
     <main className='relative'>
-      {!isSetted && <SettingModal submit={fetchDatas}/>}
+      {!isSetted && <DataInputModal fetchDatas={fetchDatas}/>}
       {!!isSetted && (!odData || !isMapLoad) && <Loading transparent={false}/>}
       {!!isSetted && !!odData && <>
       <ControllPanel
