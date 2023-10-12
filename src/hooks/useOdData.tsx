@@ -17,9 +17,26 @@ export default function useOdData(pathStringType:string|undefined) {
     const [selectedPath, setSelectedPath] = useState<String|null>(null);
     const [odDataFilter, setOdDatafilter] = useState<String[][]>();
 
+    useEffect(()=>{
+      const localGeoData = localStorage.getItem('odData');
+      const localOdDataYear = localStorage.getItem('odDataYear');
+      const localOdDataMonth = localStorage.getItem('odDataMonth');
+      const localOdDataHour = localStorage.getItem('odDataHour');
+      if (localGeoData) setOdData(JSON.parse(localGeoData));
+      if (localOdDataYear) setOdDataYear(localOdDataYear);
+      if (localOdDataMonth) setOdDataMonth(localOdDataMonth);
+      if (localOdDataHour) setOdDataHour(localOdDataHour);
+    }, [])
+    
+    useEffect(()=>{
+      if (odDataYear) localStorage.setItem('odDataYear', odDataYear);
+      if (odDataMonth) localStorage.setItem('odDataMonth', odDataMonth);
+      if (odDataHour) localStorage.setItem('odDataHour', odDataHour);
+    }, [odDataHour, odDataMonth, odDataYear]);
+    
+
     useEffect(()=> {
       if (odData) {
-        console.log(odData);
           const geohashPath = odData?.features.filter(({properties})=> (
             (!odDataYear || properties?.pickup_year == odDataYear)
             && (!odDataMonth || properties?.pickup_month == odDataMonth)
@@ -58,6 +75,7 @@ export default function useOdData(pathStringType:string|undefined) {
           if (isParseHour) setOdDataHour('00');
         }
         setOdData(json);
+        localStorage.setItem('odData', JSON.stringify(json));
     }
     return {
       fetchOddata,

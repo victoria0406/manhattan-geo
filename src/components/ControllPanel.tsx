@@ -1,39 +1,9 @@
-import { debounce } from 'lodash';
 import React, { useEffect, useState } from 'react';
-
-interface featureType {
-    name: string,
-    type: string,
-  }
-  
-
-const censusCategory:featureType[] = [
-    {name: 'ALAND', type: 'quantitative'},
-    {name: 'AWATER', type: 'quantitative'}, 
-    {name: 'COUNTYFP', type: 'categorical'},
-    {name: 'NAMELSAD', type: 'categorical'},
-  ]
-
-{/*<label
-  for="countries"
-  className="block mb-2 text-sm font-medium text-gray-900"
->
-  Select Category
-</label>
-<select
-  id="countries"
-  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-  onChange={(e)=>{setCategory(e.target.value)}}
->
-  {censusCategory.map((item:featureType, i:number)=>(
-    <option value={item.name} key={i}>{item.name}</option>
-  ))}
-</select>
-*/}
+import { featureType } from '@/lib/types';
 
 export default function ControllPanel (
-  {setCategory, isGeohash, setIsGeohash, isCensus, setIsCensus, geohashPrecision, setGeohashPrecision}
-  :{setCategory:Function, isGeohash:boolean, setIsGeohash:Function, isCensus:boolean, setIsCensus:Function, geohashPrecision:number, setGeohashPrecision:Function}
+  {setCategory, isGeohash, setIsGeohash, isCensus, setIsCensus, geohashPrecision, setGeohashPrecision, categories}
+  :{setCategory:Function, isGeohash:boolean, setIsGeohash:Function, isCensus:boolean, setIsCensus:Function, geohashPrecision:number, setGeohashPrecision:Function, categories:featureType[]|undefined}
 ) {
     const [slideValue, setSlideValue] = useState<number>(geohashPrecision);
     useEffect(()=>{
@@ -58,7 +28,8 @@ export default function ControllPanel (
       <h3 className="text-gray-900 my-4 font-medium">Controlling Geohash</h3>
       <label htmlFor="default-range" className="block mb-2 text-sm font-medium text-gray-900">Geohash Precision: {slideValue}</label>
       <input id="default-range" type="range" value={slideValue} min={4} max={7} onChange={(e:React.ChangeEvent<HTMLInputElement>)=>setSlideValue(Number(e.target.value))} className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"></input>
-      <h3 className="text-gray-900 my-4 font-medium">Filtering Census</h3>
+      {categories && 
+      <><h3 className="text-gray-900 my-4 font-medium">Filtering Census</h3>
         <div className="flex items-center mb-4">
             <input
               id={`radio-null`}
@@ -69,7 +40,7 @@ export default function ControllPanel (
             />
             <label htmlFor={`radio-null`} className="ml-2 text-sm font-medium text-gray-900">No Filter</label>
         </div>
-      {censusCategory.map((item:featureType, i:number)=>(
+      {categories.map((item:featureType, i:number)=>(
         <div className="flex items-center mb-4" key={i}>
             <input
               id={`radio-${i}`}
@@ -82,6 +53,7 @@ export default function ControllPanel (
             <label htmlFor={`radio-${i}`} className="ml-2 text-sm font-medium text-gray-900">{item.name}</label>
         </div>
       ))}
+      </>}
   </div>
   );
 }

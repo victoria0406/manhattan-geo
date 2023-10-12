@@ -1,10 +1,6 @@
 import { useEffect, useState } from "react";
 import type {FeatureCollection} from 'geoData';
-
-interface featureType {
-    name: string,
-    type: string,
-};
+import { featureType } from '@/lib/types';
 
 const censusCategory:featureType[] = [
     {name: 'ALAND', type: 'quantitative'},
@@ -56,6 +52,11 @@ export default function useGeoData() {
     const [cateStyle, setCateStyle] = useState<any[]>();
 
     useEffect(()=>{
+      const localGeoData = localStorage.getItem('geoData');
+      if (localGeoData) setGeoData(JSON.parse(localGeoData));
+    }, [])
+
+    useEffect(()=>{
         if (!geoData) return;
         const catProperties = new Set(geoData.features.map(({properties})=> {
           return properties ? category ? properties[category?.name] :null : null;
@@ -95,8 +96,10 @@ export default function useGeoData() {
     async function fetchGeoData (url:string) {
         const resp = await fetch(url);
         const json = await resp.json();
+        localStorage.setItem('geoData', JSON.stringify(json));
         setGeoData(json);
     }
+
 
     return {
         fetchGeoData,

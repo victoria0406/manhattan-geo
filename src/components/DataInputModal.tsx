@@ -1,4 +1,4 @@
-import { ViewStateType } from "@/lib/types";
+import { ViewStateType, featureType } from "@/lib/types";
 import { useEffect, useState } from "react";
 
 interface DataTypeType {
@@ -16,8 +16,8 @@ const dataTypeList = [{
 }]
 
 export default function DataInputModal (
-    {fetchDatas}:
-    {fetchDatas: Function}
+    {fetchDatas, hasPreviousData, close}:
+    {fetchDatas: Function, hasPreviousData:boolean, close: Function}
 ) {
     const [dataType, setDataType] = useState<DataTypeType|undefined>(dataTypeList[0]);
     const [pathUrl, setPathUrl] = useState<string|undefined>();
@@ -30,6 +30,8 @@ export default function DataInputModal (
     });
     const [timeUsage, setTimeUsage] = useState<boolean[]>([false, false, false]);
     const [isDropDown, setIsDropDown] = useState<boolean>(false);
+    const [quantData, setQuantData] = useState<string>()
+    const [catData, setCatData] = useState<string>()
 
     useEffect(() => {
         setPathUrl(undefined);
@@ -40,7 +42,12 @@ export default function DataInputModal (
     async function submit() {
         // validation checks - 현재는
         const urlStart = /^https:\/\//;
-        await fetchDatas(dataType?.type, pathUrl, dataUrl, extraUrl, initailView, timeUsage);
+        const quatCategories: featureType[]|undefined = quantData?.split(',').map((data:string)=>({name:data.trim(), type:'quantitative'}));
+        const catCategories: featureType[]|undefined = catData?.split(',').map((data:string)=>({name:data.trim(), type:'categorical'}));
+        const categories:featureType[]=[]
+        if (quatCategories) quatCategories.forEach((e)=>categories.push(e));
+        if (catCategories) catCategories.forEach((e)=>categories.push(e));
+        await fetchDatas(dataType?.type, pathUrl, dataUrl, extraUrl, initailView, timeUsage, categories);
     }
     function changeTime(i:number) {
         console.log(i);
@@ -198,30 +205,34 @@ export default function DataInputModal (
                         <div className="w-1/2 px-3 md:w-1/4">
                             <label
                                 className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
-                                htmlFor="data-features"
+                                htmlFor="data-features-quantitative"
                             >
                                 Quantitative Features
                             </label>
                             <input
                                 className="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
-                                id="data-features"
+                                id="data-features-quantitative"
                                 type="text"
                                 placeholder="Q1, Q2"
+                                value={quantData}
+                                onChange={(e)=>setQuantData(e.target.value)}
                             />
                             <p className="text-gray-600 text-xs italic">text</p>
                         </div>
                         <div className="w-1/2 px-3 md:w-1/4">
                             <label
                                 className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
-                                htmlFor="data-features"
+                                htmlFor="data-features-categorical"
                             >
                                 categorical Features
                             </label>
                             <input
                                 className="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
-                                id="data-features"
+                                id="data-features-categorical"
                                 type="text"
                                 placeholder="C1, C2"
+                                value={catData}
+                                onChange={(e)=>setCatData(e.target.value)}
                             />
                             <p className="text-gray-600 text-xs italic">text</p>
                         </div>
@@ -286,20 +297,29 @@ export default function DataInputModal (
                         </label>
                         <input
                             className="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
-                            id="grid-zip"
-                            type="zoom"
+                            id="zoom"
+                            type="number"
                             value={initailView?.zoom}
                             onChange={(e)=>setInitalView({...initailView, zoom: Number(e.target.value)} as ViewStateType)}
                         />
                         </div>
                     </div>
                 </form>
+                <div className="flex justify-between absolute bottom-8 w-[calc(100%-4rem)]">
                 <button
-                    className="float-right bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded disabled:bg-blue-300 disabled:hover:bg-blue-300" disabled={!(pathUrl)}
+                    className="bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded disabled:border-gray-300 disabled:text-gray-300 disabled:bg-transparent"
+                    disabled={!hasPreviousData}
+                    onClick={()=>close()}
+                >
+                    Back
+                </button>
+                <button
+                    className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded disabled:bg-blue-300 disabled:hover:bg-blue-300" disabled={!(pathUrl)}
                     onClick={()=>submit()}
                 >
                     Visualize Datas
                 </button>
+                </div>
                 </>
                 }
             </div>

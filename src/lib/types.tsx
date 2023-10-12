@@ -3,3 +3,8 @@ export interface ViewStateType {
     latitude: number|undefined,
     zoom: number|undefined,
 }
+export interface featureType {
+    name: string,
+    type: string,
+  };
+  

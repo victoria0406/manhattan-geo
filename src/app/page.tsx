@@ -14,23 +14,7 @@ import useSensor from '@/hooks/useSensor';
 import useOdData from '@/hooks/useOdData';
 import useGeoData from '@/hooks/useGeoData';
 import DataInputModal from '@/components/DataInputModal';
-
-
-interface geohashFeatureType {
-  type: 'Feature',
-  properties: {
-    geohash: string,
-  },
-  geometry: {
-    type: 'Polygon',
-    coordinates: number[][][],
-  },
-};
-
-interface featureType {
-  name: string,
-  type: string,
-};
+import { featureType } from '@/lib/types';
 
 interface ViewStateType {
   longitude: number,
@@ -58,17 +42,16 @@ const quantitativeColorList = [
 export default function Home() {
   const [isCensus, setIsCensus] = useState(true);
   const [isGeohash, setIsGeohash] = useState(true);
-  const [viewState, setViewState] = useState<ViewStateType>();
   const [pathStringType, setPathStringType] = useState<string>();
   
-  const [isSetted, setIsSetted] = useState<boolean>(false);
+  const [isSetted, setIsSetted] = useState<boolean>(true);
   const [isMapLoad, setIsMapLoad] = useState<boolean>(false);
 
   const {setGeoBounds, setGeohashPrecision, geohashPrecision, geohash} = useGeoHash();
-  const {
-    sensorData, sensorKeyValues, selectedSensor, adjSensors, sensorCountMax,
-    setSelectedSensor, clickSensor, fetchSensorData, fetchSensorAdjData
-  } = useSensor();
+
+  // 저장되어야 할 데이터
+  const [viewState, setViewState] = useState<ViewStateType>();
+  const [categories, setCategories] = useState<featureType[]|undefined>();
   const {
     fetchOddata, setOdDataYear, setOdDataMonth, setOdDataHour, setSelectedPath,
     odData, odDataYear, odDataMonth, odDataHour, odDataFilter, odPaths, selectedPath, 
@@ -77,11 +60,43 @@ export default function Home() {
   const {
     fetchGeoData, setCategory,
     geoData, category, cateStyle,
-} = useGeoData();
+  } = useGeoData();
+
+  const {
+    sensorData, sensorKeyValues, selectedSensor, adjSensors, sensorCountMax,
+    setSelectedSensor, clickSensor, fetchSensorData, fetchSensorAdjData
+  } = useSensor();
 
   useEffect(()=> {
     setSelectedSensor(null);
   }, [selectedPath]);
+
+  useEffect(()=>{
+    setIsSetted(!!odData);
+  }, [odData]);
+
+  useEffect(()=>{
+    console.log('setted',isSetted);
+  }, [isSetted]);
+  
+  useEffect(()=>{
+    const localViewState = localStorage.getItem('viewState');
+    const localCategories = localStorage.getItem('categories');
+    if (localViewState) setViewState(JSON.parse(localViewState));
+    if (localCategories) setCategories(JSON.parse(localCategories));
+  }, [])
+
+  useEffect(()=>{
+    if (viewState) {
+      localStorage.setItem('viewState', JSON.stringify(viewState));
+    }
+  }, [viewState])
+
+  useEffect(()=>{
+    if (categories) {
+      localStorage.setItem('categories', JSON.stringify(categories));
+    }
+  }, [categories])
 
   async function fetchSensorDataGroup(
     pathUrl: string, dataUrl: string, extraUrl:string, 
@@ -93,19 +108,21 @@ export default function Home() {
   };
 
   async function fetchGeoDataGroup(
-    pathUrl: string, dataUrl: string, filterUsage: boolean[]
+    pathUrl: string, dataUrl: string, filterUsage: boolean[], categories:featureType[]
   ) {
     setPathStringType('geohash');
     fetchOddata(pathUrl, {isParseHour: filterUsage[2], isParseMonth: filterUsage[1], isParseYear: filterUsage[0]});
     fetchGeoData(dataUrl);
+    console.log(categories);
+    setCategories(categories);
   }
 
   async function fetchDatas(
-    dataType: string, pathUrl: string, dataUrl: string, extraUrl:string, initailView:ViewStateType, filterUsage: boolean[]
+    dataType: string, pathUrl: string, dataUrl: string, extraUrl:string, initailView:ViewStateType, filterUsage: boolean[], categories:featureType[]
   ){
     switch (dataType) {
       case 'geo':
-        await fetchGeoDataGroup(pathUrl, dataUrl, filterUsage);
+        await fetchGeoDataGroup(pathUrl, dataUrl, filterUsage, categories);
         break;
       case 'sensor':
         await fetchSensorDataGroup(pathUrl, dataUrl, extraUrl);
@@ -129,7 +146,12 @@ export default function Home() {
 
   return (
     <main className='relative'>
-      {!isSetted && <DataInputModal fetchDatas={fetchDatas}/>}
+      {!isSetted &&
+      <DataInputModal
+        fetchDatas={fetchDatas}
+        hasPreviousData={!!odData}
+        close={()=>setIsSetted(true)}
+      />}
       {!!isSetted && (!odData || !isMapLoad) && <Loading transparent={false}/>}
       {!!isSetted && !!odData && <>
       <ControllPanel
@@ -140,6 +162,7 @@ export default function Home() {
         setIsCensus={setIsCensus}
         geohashPrecision={geohashPrecision}
         setGeohashPrecision={setGeohashPrecision}
+        categories={categories}
       />
       <PathPannel
         paths={odPaths}
@@ -151,7 +174,8 @@ export default function Home() {
         setOdDataHour = {setOdDataHour}
         setSelectedPath={setSelectedPath}
       />
-      {odData && <Map
+      {odData &&
+      <><Map
         initialViewState={viewState}
         mapStyle="mapbox://styles/mapbox/light-v11"
         mapboxAccessToken='pk.eyJ1IjoidmljdG9yaWEwNDA2IiwiYSI6ImNsbTdtN3A2ODAxdXkza3MydHRxZm94MHMifQ.7G3rMAvrocvBXl0XYX8WGA'
@@ -268,7 +292,15 @@ export default function Home() {
           />
         </Source>
         }
-      </Map>}
+      </Map>
+      <button
+          className="absolute bottom-8 right-8 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded disabled:bg-blue-300 disabled:hover:bg-blue-300"
+          onClick={()=>setIsSetted(false)}
+      >
+          Setting New
+      </button>
+      </>
+      }
       </>}
     </main>
   )

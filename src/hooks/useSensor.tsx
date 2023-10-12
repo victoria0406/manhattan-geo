@@ -11,6 +11,17 @@ export default function useSensor() {
     const [adjSensitivity, setAdjSensitivity] = useState<number>(0.1);
 
     useEffect(()=>{
+      const localSensorData = localStorage.getItem('sensorData');
+      const localSensorAdjData = localStorage.getItem('sensorAdjData');
+      if (localSensorData) setSensorData(JSON.parse(localSensorData));
+      if (localSensorAdjData) setSensorAdjData(JSON.parse(localSensorAdjData));
+    }, []);
+
+    useEffect(()=>{
+      if (sensorData) setSensorCountMax(Math.max(...sensorData?.features.map(({geometry, properties})=>(properties?.count))));
+    }, [sensorData]);
+
+    useEffect(()=>{
         if (selectedSensor && sensorAdjData) {
           const tArray = []
           const keys = Object.keys(sensorAdjData[selectedSensor]);
@@ -25,32 +36,23 @@ export default function useSensor() {
       }, [selectedSensor, sensorAdjData])
 
     // url example: `https://deepurban.kaist.ac.kr/urban/geojson/traffic/${LOCATION}-sensors.geojson`
-    function fetchSensorData(url:string) {
-        setSensorData(undefined);
-        fetch(url)
-          .then(resp => resp.json())
-          .then(json => {
-            console.log(json);
-            setSensorData(json);
-            setSensorCountMax(Math.max(...json?.features.map(({geometry, properties})=>(properties?.count))));
-          })
-          .catch(err => console.error('Could not load data', err));
+    async function fetchSensorData(url:string) {
+      const resp = await fetch(url);
+      const json = await resp.json();
+      setSensorData(json);
+      localStorage.setItem('sensorData', JSON.stringify(json));
     };
     // url example: `https://deepurban.kaist.ac.kr/urban/geojson/traffic/${LOCATION}-sensor-adjmx.json`
-    function fetchSensorAdjData(url:string) {
-        setSensorAdjData(undefined);
-        fetch(url)
-        .then(resp => resp.json())
-        .then(json => {
-            setSensorAdjData(json);
-        })
-        .catch(err => console.error('Could not load data', err));
+    async function fetchSensorAdjData(url:string) {
+      const resp = await fetch(url);
+      const json = await resp.json();
+      setSensorAdjData(json);
+      localStorage.setItem('sensorAdjData', JSON.stringify(json));
     }
 
-    function clickSensor(lngLat) {
+    function clickSensor(lngLat:{lng:number, lat:number}) {
         const clickedSensor = sensorData?.features.find(({geometry}) => ((Math.abs(geometry.coordinates[0] - lngLat.lng) < 0.001 ) && (Math.abs(geometry.coordinates[1] - lngLat.lat) < 0.001)));
         if (clickedSensor) {
-        console.log(clickedSensor);
         setSelectedSensor(clickedSensor.properties.ssid === selectedSensor ? null :clickedSensor.properties.ssid);
         }
     }
