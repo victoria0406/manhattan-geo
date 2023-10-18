@@ -15,6 +15,12 @@ const dataTypeList = [{
     fullName: 'Path with SensorData'
 }]
 
+const locationList = [
+    'metr-la', 'pems-bay', 'pemsd7'
+]
+
+const dataServerUrl = 'https://deepurban.kaist.ac.kr/urban/geojson/traffic/'
+
 export default function DataInputModal (
     {fetchDatas, hasPreviousData, close}:
     {fetchDatas: Function, hasPreviousData:boolean, close: Function}
@@ -55,6 +61,25 @@ export default function DataInputModal (
         tmp[i] = !timeUsage[i];
         setTimeUsage(tmp);
     }
+    function setDefaultPath (name:string) {
+        setPathUrl(`${dataServerUrl}${name}-1000.geojson`);
+        setDataUrl(`${dataServerUrl}${name}-sensors.geojson`);
+        setExtraUrl(`${dataServerUrl}${name}-sensor-adjmx.json`);
+        const tempInitailView = name === 'metr-la' ? {
+            longitude: -118.3992154,
+            latitude: 34.1114597,
+            zoom: 10,
+          } : name === 'pems-bay' ? {
+            longitude:  -121.92809670018664,
+            latitude: 37.34048422339241,
+            zoom: 10
+          } : {
+            longitude: -118.21073650795017,
+            latitude: 33.92243661859156,
+            zoom: 10
+          }
+        setInitalView(tempInitailView)
+    }
     return (
         <div className="fixed w-full h-full z-20 ">
             <div className="absolute w-full h-full bg-black opacity-50">
@@ -86,6 +111,24 @@ export default function DataInputModal (
                 }
                 {dataType &&
                 <><form className="w-full">
+                    {dataType?.type == 'sensor' &&
+                    <><div
+                        className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
+                    >
+                        Use Default Path
+                    </div>
+                    <div className="grid grid-cols-3 gap-10 mb-6">
+                        {locationList.map((name, i)=>(
+                            <div
+                                key={i}
+                                className="text-gray-900 border border-gray-200 rounded h-12 flex justify-center items-center hover:border-blue-500 text-center"
+                                onClick={()=>setDefaultPath(name)}
+                            >
+                                {name}
+                            </div>
+                        ))}
+                    </div></>
+                    }
                     <div className="flex flex-wrap -mx-3 mb-6">
                         <div className="w-full md:w-3/4 px-3">
                             <label

@@ -63,8 +63,8 @@ export default function Home() {
   } = useGeoData();
 
   const {
-    sensorData, sensorKeyValues, selectedSensor, adjSensors, sensorCountMax,
-    setSelectedSensor, clickSensor, fetchSensorData, fetchSensorAdjData
+    sensorData, selectedSensor, sensorCountMax,
+    setSelectedSensor, clickSensor, fetchSensorData, fetchSensorAdjData, reset
   } = useSensor();
 
   useEffect(()=> {
@@ -120,6 +120,7 @@ export default function Home() {
   async function fetchDatas(
     dataType: string, pathUrl: string, dataUrl: string, extraUrl:string, initailView:ViewStateType, filterUsage: boolean[], categories:featureType[]
   ){
+    reset();
     switch (dataType) {
       case 'geo':
         await fetchGeoDataGroup(pathUrl, dataUrl, filterUsage, categories);
@@ -220,31 +221,21 @@ export default function Home() {
             type="line"
             // beforeId="sensorLayer"
             paint={{
-              'line-color': 'red',
+              'line-color': selectedPath ? [
+                'match',
+                ['get', 'key'],
+                selectedPath,'#000000', 
+                '#aaaaaa'
+              ] : '#444444',
               'line-width': 4,
               // 'line-gradient' must be specified using an expression
               // with the special 'line-progress' property
-              'line-gradient': [
-              'interpolate',
-              ['linear'],
-              ['line-progress'],
-              0,
-              'blue',
-              0.2,
-              '#888888',
-              0.5,
-              '#888888',
-              0.8,
-              '#888888',
-              1,
-              'red'
-              ],
               'line-opacity': selectedPath ? [
                 'match',
                 ['get', 'key'],
                 selectedPath, 1, 
                 0.01
-              ] : 0.5
+              ] : 0.3
             }}
             layout={{
               'line-cap': 'round',
@@ -254,28 +245,29 @@ export default function Home() {
           />
         </Source>
         }
-        {!!sensorData && !!sensorKeyValues &&
+        {!!sensorData &&
           <Source type="geojson" data={sensorData}>
           {!!selectedSensor && <Layer
             id="sensorAdjLayer"
             type="symbol"
             layout={{
-              'text-field': ['match', ['get', 'ssid'], ...sensorKeyValues, ''],
+              'text-field': ['get', `adj-${selectedSensor}`],
               'text-anchor': 'bottom',
               'text-offset': [0, -1],
             }}
-            filter={selectedPath ? ['in', 'ssid', ...odPaths.find(({key})=>selectedPath === key)?.string?.split(',')] : ['all']}
+            filter={selectedSensor ? ['>', ['get', `adj-${selectedSensor}`], 0.1] : ['all']}
           />}
           <Layer
             id="sensorLayer"
             type="circle"
             paint={{
               'circle-stroke-width': 1,
-              'circle-stroke-opacity':selectedSensor ? [
-                'case',
-                ['in', ['get', 'ssid'], ["literal", adjSensors]],
-                1,
-                0.3
+              'circle-stroke-opacity': selectedPath && !selectedSensor ? [
+                'match',
+                ['get', 'ssid'], 
+                odPaths.find(({key})=>selectedPath === key)?.string?.split(','),
+                0.7,
+                0.2
               ]: 1,
               'circle-color': [
               'interpolate',
@@ -293,19 +285,21 @@ export default function Home() {
               sensorCountMax*9/10, quantitativeColorList[9],
               ],
               'circle-radius': selectedSensor ? [
-                'match',
-                ['get', 'ssid'],
-                selectedSensor, 8,
-                4
+                'interpolate',
+                ['linear'],
+                ['get', `adj-${selectedSensor}`],
+                0, 0,
+                1, 32
               ] : 4,
-              'circle-opacity': selectedSensor ? [
-                'case',
-                ['in', ['get', 'ssid'], ["literal", adjSensors]],
-                1,
-                0.1
+              'circle-opacity': selectedPath && !selectedSensor ? [
+                'match',
+                ['get', 'ssid'], 
+                odPaths.find(({key})=>selectedPath === key)?.string?.split(','),
+                0.7,
+                0.2
               ]: 1
             }}
-            filter={selectedPath ? ['in', 'ssid', ...odPaths.find(({key})=>selectedPath === key)?.string?.split(',')] : ['all']}
+            //filter={selectedPath ? ['in', 'ssid', ...odPaths.find(({key})=>selectedPath === key)?.string?.split(',')] : ['all']}
           />
         </Source>
         }
