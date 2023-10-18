@@ -28,7 +28,7 @@ export default function ControllPanel (
       <h3 className="text-gray-900 my-4 font-medium">Controlling Geohash</h3>
       <label htmlFor="default-range" className="block mb-2 text-sm font-medium text-gray-900">Geohash Precision: {slideValue}</label>
       <input id="default-range" type="range" value={slideValue} min={4} max={7} onChange={(e:React.ChangeEvent<HTMLInputElement>)=>setSlideValue(Number(e.target.value))} className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"></input>
-      {categories && 
+      {(categories && categories.length > 0) && 
       <><h3 className="text-gray-900 my-4 font-medium">Filtering Census</h3>
         <div className="flex items-center mb-4">
             <input

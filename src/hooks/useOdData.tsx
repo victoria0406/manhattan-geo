@@ -7,7 +7,7 @@ function coordinatesToGeohashs(coordinates:number[][]) {
     encodeGeohash(lat, lng)
   )).join('-');
 }
-
+// 3000 이상 부터는 사이즈 문제로 저장 불가 -> 해당 경로 불러오는 것으로 대체하는 것이 좋을 것 같음
 export default function useOdData(pathStringType:string|undefined) {
     const [odData, setOdData] = useState<FeatureCollection>();
     const [odDataYear, setOdDataYear] = useState<string|null>(null);
@@ -61,6 +61,7 @@ export default function useOdData(pathStringType:string|undefined) {
     async function fetchOddata(url: string, {isParseYear, isParseMonth, isParseHour}: {isParseYear:boolean, isParseMonth:boolean, isParseHour:boolean}={isParseYear:false, isParseMonth:false, isParseHour:false}) {
         const resp = await fetch(url);
         const json = await resp.json();
+        console.log(json)
         if (isParseYear || isParseMonth || isParseHour) {
           json.features.forEach(({properties}, i:number)=>{
             const [fulldate, time, utc] = properties.pickup_datetime.split(' ');
@@ -71,11 +72,19 @@ export default function useOdData(pathStringType:string|undefined) {
             if (isParseHour) json.features[i].properties.pickup_hour = hour;
           });
           if (isParseYear) setOdDataYear('2009');
-          if (isParseMonth) setOdDataMonth('01');
+          if (isParseMonth) setOdDataYear('2009');
           if (isParseHour) setOdDataHour('00');
+        } else {
+          setOdDataYear(null);
+          setOdDataYear(null);
+          setOdDataHour(null);
         }
         setOdData(json);
-        localStorage.setItem('odData', JSON.stringify(json));
+        try {
+          localStorage.setItem('odData', JSON.stringify(json));
+        } catch (e) {
+          console.log('size');
+        }
     }
     return {
       fetchOddata,

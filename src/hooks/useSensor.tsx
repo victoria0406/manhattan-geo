@@ -40,14 +40,22 @@ export default function useSensor() {
       const resp = await fetch(url);
       const json = await resp.json();
       setSensorData(json);
-      localStorage.setItem('sensorData', JSON.stringify(json));
+      try {
+        localStorage.setItem('sensorData', JSON.stringify(json));
+      } catch (e) {
+        console.log('size fault');
+      }
     };
     // url example: `https://deepurban.kaist.ac.kr/urban/geojson/traffic/${LOCATION}-sensor-adjmx.json`
     async function fetchSensorAdjData(url:string) {
       const resp = await fetch(url);
       const json = await resp.json();
       setSensorAdjData(json);
-      localStorage.setItem('sensorAdjData', JSON.stringify(json));
+      try {
+        localStorage.setItem('sensorAdjData', JSON.stringify(json));
+      } catch (e) {
+        console.log('size fault');
+      }
     }
 
     function clickSensor(lngLat:{lng:number, lat:number}) {

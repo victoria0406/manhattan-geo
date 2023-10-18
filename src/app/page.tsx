@@ -202,7 +202,8 @@ export default function Home() {
             }}
           />
         </Source>}
-        {!!geohash && isGeohash &&<Source type="geojson" data={geohash}>
+        {!!geohash && isGeohash &&
+        <Source type="geojson" data={geohash}>
           <Layer
             id="geohashLayer"
             type="line"
@@ -213,25 +214,41 @@ export default function Home() {
           />
         </Source>}
         {!!odData &&
-          <Source type="geojson" data={odData}>
+          <Source type="geojson" data={odData} lineMetrics={true}>
           <Layer
             id="odLayer"
             type="line"
             // beforeId="sensorLayer"
             paint={{
-              'line-color': selectedPath ? [
-                'match',
-                ['get', 'key'],
-                selectedPath, 'black', 
-                '#aaaaaa'
-              ] : '#444444',
-              'line-width': 2,
+              'line-color': 'red',
+              'line-width': 4,
+              // 'line-gradient' must be specified using an expression
+              // with the special 'line-progress' property
+              'line-gradient': [
+              'interpolate',
+              ['linear'],
+              ['line-progress'],
+              0,
+              'blue',
+              0.2,
+              '#888888',
+              0.5,
+              '#888888',
+              0.8,
+              '#888888',
+              1,
+              'red'
+              ],
               'line-opacity': selectedPath ? [
                 'match',
                 ['get', 'key'],
                 selectedPath, 1, 
                 0.01
               ] : 0.5
+            }}
+            layout={{
+              'line-cap': 'round',
+              'line-join': 'round'
             }}
             filter={['all', ...odDataFilter]}
           />
