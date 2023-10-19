@@ -61,7 +61,6 @@ export default function useOdData(pathStringType:string|undefined) {
     async function fetchOddata(url: string, {isParseYear, isParseMonth, isParseHour}: {isParseYear:boolean, isParseMonth:boolean, isParseHour:boolean}={isParseYear:false, isParseMonth:false, isParseHour:false}) {
         const resp = await fetch(url);
         const json = await resp.json();
-        console.log(json)
         if (isParseYear || isParseMonth || isParseHour) {
           json.features.forEach(({properties}, i:number)=>{
             const [fulldate, time, utc] = properties.pickup_datetime.split(' ');

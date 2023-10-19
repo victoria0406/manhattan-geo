@@ -29,7 +29,7 @@ export default function DataInputModal (
     const [pathUrl, setPathUrl] = useState<string|undefined>();
     const [dataUrl, setDataUrl] = useState<string|undefined>();
     const [extraUrl, setExtraUrl] = useState<string|undefined>();
-    const [initailView, setInitalView] = useState<ViewStateType|undefined>({
+    const [initialView, setInitalView] = useState<ViewStateType|undefined>({
         longitude: -73.9712488,
         latitude:  40.7830603,
         zoom: 12
@@ -45,7 +45,7 @@ export default function DataInputModal (
         setExtraUrl(undefined);
     }, [dataType])
 
-    async function submit() {
+    async function submit(isAdd:boolean) {
         // validation checks - 현재는
         const urlStart = /^https:\/\//;
         const quatCategories: featureType[]|undefined = quantData?.split(',').map((data:string)=>({name:data.trim(), type:'quantitative'}));
@@ -53,10 +53,9 @@ export default function DataInputModal (
         const categories:featureType[]=[]
         if (quatCategories) quatCategories.forEach((e)=>categories.push(e));
         if (catCategories) catCategories.forEach((e)=>categories.push(e));
-        await fetchDatas(dataType?.type, pathUrl, dataUrl, extraUrl, initailView, timeUsage, categories);
+        await fetchDatas(isAdd, dataType?.type, pathUrl, dataUrl, extraUrl, initialView, timeUsage, categories);
     }
     function changeTime(i:number) {
-        console.log(i);
         const tmp = [...timeUsage];
         tmp[i] = !timeUsage[i];
         setTimeUsage(tmp);
@@ -65,7 +64,7 @@ export default function DataInputModal (
         setPathUrl(`${dataServerUrl}${name}-1000.geojson`);
         setDataUrl(`${dataServerUrl}${name}-sensors.geojson`);
         setExtraUrl(`${dataServerUrl}${name}-sensor-adjmx.json`);
-        const tempInitailView = name === 'metr-la' ? {
+        const tempinitialView = name === 'metr-la' ? {
             longitude: -118.3992154,
             latitude: 34.1114597,
             zoom: 10,
@@ -78,7 +77,7 @@ export default function DataInputModal (
             latitude: 33.92243661859156,
             zoom: 10
           }
-        setInitalView(tempInitailView)
+        setInitalView(tempinitialView)
     }
     return (
         <div className="fixed w-full h-full z-20 ">
@@ -312,8 +311,8 @@ export default function DataInputModal (
                                 className="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
                                 id="latitude"
                                 type="text"
-                                value={initailView?.latitude}
-                                onChange={(e)=>setInitalView({...initailView, latitude: Number(e.target.value)} as ViewStateType)}
+                                value={initialView?.latitude}
+                                onChange={(e)=>setInitalView({...initialView, latitude: Number(e.target.value)} as ViewStateType)}
                             />
                         </div>
                         <div className="w-full sm:w-1/3 px-3 mb-6 sm:mb-0">
@@ -327,8 +326,8 @@ export default function DataInputModal (
                                 className="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
                                 id="longitude"
                                 type="text"
-                                value={initailView?.longitude}
-                                onChange={(e)=>setInitalView({...initailView, longitude: Number(e.target.value)} as ViewStateType)}
+                                value={initialView?.longitude}
+                                onChange={(e)=>setInitalView({...initialView, longitude: Number(e.target.value)} as ViewStateType)}
                             />
                         </div>
                         <div className="w-full sm:w-1/3 px-3 mb-6 sm:mb-0">
@@ -342,8 +341,8 @@ export default function DataInputModal (
                             className="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
                             id="zoom"
                             type="number"
-                            value={initailView?.zoom}
-                            onChange={(e)=>setInitalView({...initailView, zoom: Number(e.target.value)} as ViewStateType)}
+                            value={initialView?.zoom}
+                            onChange={(e)=>setInitalView({...initialView, zoom: Number(e.target.value)} as ViewStateType)}
                         />
                         </div>
                     </div>
@@ -356,12 +355,21 @@ export default function DataInputModal (
                 >
                     Back
                 </button>
-                <button
-                    className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded disabled:bg-blue-300 disabled:hover:bg-blue-300" disabled={!(pathUrl)}
-                    onClick={()=>submit()}
-                >
-                    Visualize Datas
-                </button>
+                <div>
+                    {hasPreviousData && <button
+                        className="mr-2 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded disabled:bg-blue-300 disabled:hover:bg-blue-300" disabled={!(pathUrl)}
+                        onClick={()=>submit(true)}
+                    >
+                        Add Data
+                    </button> }
+                    <button
+                        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded disabled:bg-blue-300 disabled:hover:bg-blue-300" disabled={!(pathUrl)}
+                        onClick={()=>submit(false)}
+                    >
+                        {hasPreviousData ? 'Replace' : 'Add'} Datas
+                    </button>
+                </div>
+
                 </div>
                 </>
                 }

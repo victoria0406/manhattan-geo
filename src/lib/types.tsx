@@ -7,4 +7,13 @@ export interface featureType {
     name: string,
     type: string,
   };
+export interface inputDataType {
+    dataType:string,
+    pathUrl: string, 
+    dataUrl: string,
+    extraUrl: string,
+    initialView: ViewStateType,
+    filterUsage: boolean[],
+    categories:featureType[]
+}
   
