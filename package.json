@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@turf/turf": "^6.5.0",
     "@types/lodash": "^4.14.198",
     "@types/node": "20.5.9",
     "@types/react": "18.2.21",
@@ -23,7 +24,9 @@
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-map-gl": "^7.1.5",
+    "recoil": "^0.7.7",
     "tailwindcss": "3.3.3",
+    "turf": "^3.0.14",
     "typescript": "5.2.2"
   }
 }

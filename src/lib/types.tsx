@@ -16,4 +16,8 @@ export interface inputDataType {
     filterUsage: boolean[],
     categories:featureType[]
 }
-  
+export interface TimeFilterType {
+    year: string|null,
+    month: string|null, 
+    hour: string|null,
+}

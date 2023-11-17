@@ -1,78 +1,39 @@
 "use client";
-import { useEffect, useState } from 'react';
-import DataInputModal from '@/components/DataInputModal';
-import { featureType, ViewStateType, inputDataType } from '@/lib/types';
-import GeoMap from '@/components/GeoMap';
-import SensorMap from '@/components/SensorMap';
+import DataMap from "@/components/DataMap";
+import PathPannel from "@/components/PathPannel";
+import { DateUnit } from "@/lib/enumerates";
+import { ViewStateType } from "@/lib/types";
+import { RecoilRoot } from "recoil";
 
 export default function Home() {
-  const [isSetted, setIsSetted] = useState(false);
-  const [datas, setDatas] = useState<inputDataType[]>([]);
-
-  useEffect(()=>{
-    console.log(datas);
-  }, [datas])
-
-  async function fetchDatas(
-    isAdd: boolean, dataType: string, pathUrl: string, dataUrl: string, extraUrl:string, initialView:ViewStateType, filterUsage: boolean[], categories:featureType[]
-  ){
-    const newData: inputDataType = {
-      dataType, pathUrl, dataUrl, extraUrl, initialView, filterUsage, categories
-    }
-    setDatas([]);
-    if (isAdd) {
-      datas.push(newData);
-      setDatas([...datas]);
-    }
-    else {
-      setDatas([newData]);
-    }
-    setIsSetted(true);
+  const initialView : ViewStateType= {
+    longitude:-73.9712488,
+    latitude: 40.7830603,
+    zoom: 12,
   }
+  const pathDataUrl = 'http://deepurban.kaist.ac.kr/urban/geojson/nyc_taxi_trajectory_generated_sample.geojson'
 
   return (
-    <main className={`relative grid grid-cols-${Math.max(1, datas.length)}`}>
-      {!isSetted &&
-      <DataInputModal
-        fetchDatas={fetchDatas}
-        hasPreviousData={datas.length > 0}
-        close={()=>setIsSetted(true)}
-      />}
-      {
-        datas.map(({
-          dataType,
-          pathUrl,
-          dataUrl,
-          extraUrl,
-          initialView,
-          filterUsage,
-          categories,
-        }, i) => (
-          dataType == 'geo' ?  
-          <GeoMap
-            key={pathUrl}
-            pathUrl = {pathUrl}
-            dataUrl = {dataUrl}
-            initialView = {initialView}
-            filterUsage = {filterUsage}
-            initialCategories = {categories}
-          /> : 
-          <SensorMap
-            key={pathUrl}
-            pathUrl={pathUrl}
-            dataUrl={dataUrl}
-            extraUrl={extraUrl}
-            initialView={initialView}
-          />
-        ))
-      }
-      <button
-          className="absolute bottom-8 right-8 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded disabled:bg-blue-300 disabled:hover:bg-blue-300"
-          onClick={()=>setIsSetted(false)}
-      >
-          Setting New
-      </button>
-
+    <main className={`relative h-screen`}>
+      <RecoilRoot>
+        <DataMap.Wrapper
+          viewState={initialView}
+        >
+          <DataMap.PathMap.Wrapper
+            pathUrl={pathDataUrl}
+          >
+            <DataMap.PathMap.Heatmap/>
+            <DataMap.PathMap.Path />
+          </DataMap.PathMap.Wrapper>
+        </DataMap.Wrapper>
+        <PathPannel.Wrapper>
+          <PathPannel.FilterSlider filterUnit={DateUnit.hour} filterRange={[0, 23]}/>
+          <PathPannel.PathList />
+          <PathPannel.ExtractButton filteredDataOnly={true}>
+            Extract Strings
+          </PathPannel.ExtractButton>
+        </PathPannel.Wrapper>
+      </RecoilRoot>
     </main>
   )
 }

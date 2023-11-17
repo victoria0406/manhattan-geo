@@ -65,7 +65,6 @@ export default function SensorMap(
   async function fetchData() {
     
     setViewState(initialView);
-    console.log(initialView);
     await fetchOddata(pathUrl);
     await fetchSensorData(dataUrl, extraUrl);
   };
