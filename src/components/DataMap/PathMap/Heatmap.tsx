@@ -26,14 +26,14 @@ export default function Heatmap() {
                 'interpolate',
                 ['linear'],
                 ['get', 'count'],
-                0,'#ffff00',
-                heatmapMax, '#ff0000',
+                1,'#0fffff',
+                heatmapMax, '#0000ff',
               ],
               'fill-opacity': [
                 'interpolate',
                 ['linear'],
                 ['get', 'count'],
-                0, 0.3,
+                1, 0.3,
                 heatmapMax, 1,
               ],
             }}

@@ -15,6 +15,12 @@ const pathData = atom({
     key: 'pathData', 
     default: null,
 });
+
+const geoData = atom({
+    key: 'geoData',
+    default: null,
+})
+
 // 이게 연상량을 너무 늘려서 못 쓸 것 같습니다. 
 const mapBounds = atom({
     key: 'MapBounds',
@@ -133,6 +139,7 @@ const filteredPathHeatmap = selector({
 
 export {
     pathData,
+    geoData,
     timeFilter,
     filteredPath,
     filteredPathString,
@@ -140,4 +147,5 @@ export {
     isPathDataLoaded,
     mapBounds,
     highlightedPath,
+    geohashPrecision,
 }

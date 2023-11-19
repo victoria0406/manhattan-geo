@@ -11,14 +11,15 @@ export default function Path() {
         <Source
             type="geojson"
             data={filteredPathState}
+            lineMetrics={true}
         >
             <Layer
                 id='pathLayer'
                 type='line'
                 paint = {{
-                    'line-color': '#FFFFFF',
-                    'line-width': 2,
-                    'line-opacity': highlightedPath ? 0.3 : 0.5,
+                    'line-color': '#ffffff',
+                    'line-width': 3,
+                    'line-opacity': highlightedPath ? 0.3 : 0.7,
                 }}
             />
             <Layer
@@ -26,7 +27,7 @@ export default function Path() {
                 type='line'
                 paint = {{
                     'line-color': '#FFFFFF',
-                    'line-width': 4,
+                    'line-width': 6,
                 }}
                 filter ={['==', 'key', highlightedPath]}
             />

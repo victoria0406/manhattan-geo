@@ -23,7 +23,6 @@ export default function Wrapper(
         }
         if (pathUrl) {
             getPath();
-
         }
     }, [])
     return (
