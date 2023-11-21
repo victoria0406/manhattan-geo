@@ -6,7 +6,7 @@ export default function Button(
 ){
     return (
         <button
-            className={`p-1 ${activate ? 'bg-blue-500':'bg-blue-800'} text-sm`}
+            className={`p-1 text-sm ${activate ? 'active': ''}`}
             onClick={(e)=>onClick ? onClick(e):null}
         >
             {children}

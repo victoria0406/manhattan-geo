@@ -19,7 +19,7 @@ export default function Path() {
                 paint = {{
                     'line-color': '#ffffff',
                     'line-width': 3,
-                    'line-opacity': highlightedPath ? 0.3 : 0.7,
+                    'line-opacity': highlightedPath ? 0.3 : 0.5,
                 }}
             />
             <Layer
