@@ -10,15 +10,17 @@ export default function ExtractButton(
     function extractFiltered() {
         const fileName = `extract-string-filteted.txt`;
 
-        const strings = filterPathList.map(({string})=>(string));
-        const content = strings.join('\n');
-        const blob = new Blob([content], { type: 'text/plain' });
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(blob);
-        link.download = fileName;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+        const strings = filterPathList?.map(({string})=>(string));
+        if (strings) {
+            const content = strings.join('\n');
+            const blob = new Blob([content], { type: 'text/plain' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = fileName;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link)
+        };
     }
     return (
         <button

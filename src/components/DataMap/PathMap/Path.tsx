@@ -2,9 +2,10 @@ import { filteredPath, highlightedPath as highlightedPathState } from "@/recoil/
 import {Source, Layer} from '@/lib/useClientModules';
 import { useRecoilValue } from "recoil"
 import { useEffect } from "react";
+import { FeatureCollection } from "geojson";
 
 export default function Path() {
-    const filteredPathState = useRecoilValue(filteredPath);
+    const filteredPathState = useRecoilValue<FeatureCollection|null>(filteredPath);
     const highlightedPath = useRecoilValue(highlightedPathState);
     return (
         filteredPathState &&

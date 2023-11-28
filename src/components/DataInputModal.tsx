@@ -1,4 +1,4 @@
-import { ViewStateType, featureType } from "@/lib/types";
+/*import { ViewStateType, featureType } from "@/lib/types";
 import { useEffect, useState } from "react";
 
 interface DataTypeType {
@@ -377,3 +377,4 @@ export default function DataInputModal (
         </div>
     )
 }
+*/

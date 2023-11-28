@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+/*import { useEffect, useState } from "react";
 
 const locationList = [
     'manhatton', 'metr-la', 'pems-bay', 'pemsd7'
@@ -17,8 +17,9 @@ export default function SettingModal (
             <div className="absolute w-1/2 h-1/2 left-1/4 top-1/4 bg-white rounded-xl shadow p-4">
                 <h3 className="text-gray-900 text-lg mb-4 font-medium">Choosing Datasets</h3>
                 <div className="flex justify-between ">
-                    {locationList.map((name:string)=> (
+                    {locationList.map((name:string, i:number)=> (
                         <div
+                            key = {i}
                             className={`bg-white rounded-xl shadow text-gray-900 p-2 ${location === name ? 'border-gray-500 border-solid border-2':''}`}
                             onClick={()=>setLocation(name)}
                         >
@@ -27,8 +28,9 @@ export default function SettingModal (
                     ))}
                 </div>
                 <div className="flex justify-between ">
-                    {[1000, 2000, 3000, 5000, 10000].map((size)=>(
+                    {[1000, 2000, 3000, 5000, 10000].map((size, i)=>(
                         <div
+                            key={i}
                             className={`bg-white rounded-xl shadow text-gray-900 p-2 ${dataSize === size ? 'border-gray-500 border-solid border-2':''}`}
                             onClick={()=>{setDataSize(size)}}
                         >
@@ -46,3 +48,4 @@ export default function SettingModal (
         </div>
     )
 }
+*/

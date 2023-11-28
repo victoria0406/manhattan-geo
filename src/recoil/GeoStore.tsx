@@ -1,8 +1,7 @@
 import { atom, selector } from "recoil";
-import type {FeatureCollection} from 'geoData';
-import { TimeFilterType } from "@/lib/types";
+import type {FeatureCollection, LineString} from 'geojson';
+import { PathType, TimeFilterType, TimeUnit, featureType } from "@/lib/types";
 import { decodeGeohash, encodeGeohash } from "@/lib/geohash";
-import * as turf from '@turf/turf';
 
 function coordinatesToGeohashs(coordinates:number[][], precision:number) {
     return coordinates.map(([lng, lat]) => (
@@ -11,7 +10,7 @@ function coordinatesToGeohashs(coordinates:number[][], precision:number) {
 };
 
 // geojson data
-const pathData = atom({
+const pathData = atom<FeatureCollection|null>({
     key: 'pathData', 
     default: null,
 });
@@ -32,7 +31,7 @@ const geohashPrecision = atom({
     default: 7,
 });
 
-const highlightedPath = atom({
+const highlightedPath = atom<string|null>({
     key:'highlightedPath',
     default: null,
 });
@@ -47,15 +46,17 @@ const isPathDataLoaded = selector({
 // filtered geojson dataa
 function filterGeojson(geodata:FeatureCollection, timeFilter:TimeFilterType) {
    const newFeatures =  geodata.features.filter(({properties})=>{
-        const isFilters = ['year', 'month', 'hour'].map((unit) => 
-            (properties[`pickup_${unit}`] === timeFilter[unit] || !timeFilter[unit])
-        );
-        return isFilters.every((isFilter)=>(isFilter));
+        if (properties) {
+            const isFilters = (['year', 'month', 'hour'] as TimeUnit[]).map((unit:TimeUnit) => 
+                (properties[`pickup_${unit}`] === timeFilter[unit] || !timeFilter[unit])
+            );
+            return isFilters.every((isFilter)=>(isFilter));
+        } return null;
     })
     return ({
         type: 'FeatureCollection',
         features: newFeatures,
-    });
+    }) as FeatureCollection;
 };
 
 const timeFilter = atom<TimeFilterType>({
@@ -87,11 +88,11 @@ const filteredPathString = selector({
         return filteredPathState.features.map(
             ({geometry, properties}) => {
             return ({
-                string: coordinatesToGeohashs(geometry.coordinates, precision),
-                key: properties.key
+                string: coordinatesToGeohashs((geometry as LineString).coordinates, precision),
+                key: properties?.key
             })
             }
-        )
+        ) as PathType[]
     }
 });
 
@@ -134,7 +135,7 @@ const filteredPathHeatmap = selector({
           return ({
             type: 'FeatureCollection',
             features: geohashFeatures,
-          })
+          } as FeatureCollection)
     }
 });
 

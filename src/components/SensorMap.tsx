@@ -1,4 +1,4 @@
-"use client";
+/*"use client";
 
 import Map, {Source, Layer, Popup, MapLayerMouseEvent, LngLatBounds} from '@/lib/useClientModules';
 import type {FeatureCollection} from 'geojson';
@@ -12,6 +12,7 @@ import useGeoHash from '@/hooks/useGeohash';
 import useSensor from '@/hooks/useSensor';
 import useOdData from '@/hooks/useOdData';
 import { ViewStateType } from '@/lib/types';
+import { MapMouseEvent } from 'mapbox-gl';
 
 const mapSetting = {
   minZoom: 8,
@@ -73,7 +74,7 @@ export default function SensorMap(
     setGeoBounds(e.target.getBounds());
   },500);
 
-  const onClick = (e) => {
+  const onClick = (e:MapMouseEvent) => {
     const {lngLat} = e
     clickSensor(lngLat);
   }
@@ -220,3 +221,4 @@ export default function SensorMap(
     </div>
   )
 }
+*/

@@ -1,9 +1,7 @@
 "use client";
 import ControllPanel from "@/components/ControllPanel";
-import DataInputModal from "@/components/DataInputModal";
 import DataMap from "@/components/DataMap";
 import PathPannel from "@/components/PathPannel";
-import SelectedPath from "@/components/SelectedPath";
 import { ButtonGroup, Button } from "@/components/ui";
 import { DateUnit } from "@/lib/enumerates";
 import { ViewStateType, featureType } from "@/lib/types";
@@ -76,7 +74,7 @@ export default function Home() {
           {!useGeohash && 
           <><div className="text-sm mt-2">Census Category</div>
           <ButtonGroup
-            direction="vetical"
+            direction="vertical"
             gap={2}
             style="outlined"
           >

@@ -2,13 +2,14 @@ import {Source, Layer} from '@/lib/useClientModules';
 import { filteredPathHeatmap } from '@/recoil/GeoStore';
 import { useEffect, useState } from 'react';
 import { useRecoilValue } from 'recoil';
+import type {FeatureCollection} from 'geojson';
 
 export default function Heatmap() {
-    const filteredPathHeatmapState = useRecoilValue(filteredPathHeatmap);
+    const filteredPathHeatmapState = useRecoilValue<FeatureCollection|null>(filteredPathHeatmap);
     const [heatmapMax, setHeatmapMax] = useState(0);
     useEffect(()=>{
         if (filteredPathHeatmapState?.features) {
-            setHeatmapMax(Math.max(...filteredPathHeatmapState?.features.map(({properties}) => (properties.count))));
+            setHeatmapMax(Math.max(...filteredPathHeatmapState?.features.map(({properties}) => (properties?.count))));
         }
     }, [filteredPathHeatmapState]);
     return (

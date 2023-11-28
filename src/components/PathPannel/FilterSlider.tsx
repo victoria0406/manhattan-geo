@@ -9,7 +9,7 @@ export default function FilterSlider(
 ) {
     const [filterValue, setFilterValue] = useState(filterRange[0]);
     const [timeFilter, setTimeFilter] = useRecoilState(timeFilterState);
-    const [player, setPlayer] = useState(null);
+    const [player, setPlayer] = useState<any>(null);
 
     function changeFilter(value: number) {
         const newFilter = {...timeFilter};

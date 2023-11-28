@@ -8,7 +8,7 @@ export default function PathList() {
         const newKey = highlightedPath === key ? null : key;
         setHighlightedPath(newKey);
         if (newKey) {
-            const newString = pathList.filter(({key:pathkey})=>(pathkey === key))[0].string;
+            const newString = pathList?.filter(({key:pathkey})=>(pathkey === key))[0].string;
             if (newString) {
                 //TODO: string copy
                 /*var range = document.createRange();

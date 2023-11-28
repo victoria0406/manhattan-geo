@@ -19,7 +19,7 @@ export default function Wrapper(
     const isPathDataLoadedState = useRecoilValue(isPathDataLoaded);
     const [mapBounds, setMapBounds] = useRecoilState(mapBoundsState);
 
-    const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: Dark)').matches;
+    const prefersDark = true;//TODO: 다크모드는 next.js에서 다르다. window.matchMedia && window.matchMedia('(prefers-color-scheme: Dark)').matches;
 
     const mapboxAccessToken = 'pk.eyJ1IjoidmljdG9yaWEwNDA2IiwiYSI6ImNsbTdtN3A2ODAxdXkza3MydHRxZm94MHMifQ.7G3rMAvrocvBXl0XYX8WGA';
     const mapboxStyle = `mapbox://styles/mapbox/${prefersDark ?"dark":"light"}-v11`;
