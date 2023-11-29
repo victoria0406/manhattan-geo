@@ -5,7 +5,7 @@ interface Props {
     placeholder?:string,
     value: string|undefined,
     label?:string,
-    onChange: ChangeEventHandler<HTMLInputElement>,
+    onChange?: ChangeEventHandler<HTMLInputElement>,
     information?:string,
 }
 
@@ -24,7 +24,7 @@ export default function InputText(props:Props) {
       </label>
       )}
       <input
-        className="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 mb-2 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+        className="appearance-none block w-full text-gray-700 border border-gray-200 rounded py-3 px-4 mb-2 leading-tight focus:outline-none focus:border-gray-500"
         id={id}
         type="text"
         placeholder={placeholder}

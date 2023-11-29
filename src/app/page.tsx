@@ -3,7 +3,9 @@
 import ControllPanel from '@/components/ControllPanel';
 import DataMap from '@/components/DataMap';
 import PathPannel from '@/components/PathPannel';
-import { ButtonGroup, Button, InputText } from '@/components/ui';
+import {
+  ButtonGroup, Button, InputText, Select,
+} from '@/components/ui';
 import { ViewStateType, featureType } from '@/lib/types';
 import React, { useState } from 'react';
 import { RecoilRoot } from 'recoil';
@@ -24,19 +26,17 @@ export default function Home() {
   ];
 
   const [category, setCategory] = useState<featureType|null>(null);
-
   const [useGeohash, setUseGeohash] = useState(true);
-
-  const [initialView, setInitalView] = useState<ViewStateType>();
   const [pathDataUrl, setPathDataUrl] = useState<string>('');
   const [geoDataUrl, setGeoDataUrl] = useState<string>('');
+  const [isSetted, SetIsSetted] = useState(false);
 
   function settingDatas() {
-    setInitalView(initialViewTemp);
+    SetIsSetted(true);
   }
   return (
     <main className="relative h-screen">
-      {!initialView
+      {!isSetted
       && (
       <div className="w-screen h-screen flex">
         <div
@@ -52,20 +52,26 @@ export default function Home() {
             placeholder="https://"
             information="The url should be https, not http"
           />
-          <InputText value={geoDataUrl} id="geo-data-url" label="Geographic data url" onChange={(e) => setGeoDataUrl(e.target.value)} placeholder="https://" />
-          <ButtonGroup direction="horizontal" gap={5}>
-            <Button size="lg">Prev</Button>
-            <Button size="lg" activate onClick={() => settingDatas()}>Next</Button>
-          </ButtonGroup>
+          <InputText
+            value={geoDataUrl}
+            id="geo-data-url"
+            label="Geographic data url"
+            onChange={(e) => setGeoDataUrl(e.target.value)}
+            placeholder="https://"
+            information="The url should be https, not http"
+          />
+          <div className="flex justify-between w-full">
+            <Button size="md" style="outlined">Prev</Button>
+            <Button size="md" disabled={!(pathDataUrl)} onClick={() => settingDatas()}>Next</Button>
+          </div>
+
         </div>
       </div>
       )}
-      {initialView
+      {isSetted
       && (
       <RecoilRoot>
-        <DataMap.Wrapper
-          viewState={initialView}
-        >
+        <DataMap.Wrapper>
           {geoDataUrl && (
           <DataMap.GeoMap.Wrapper
             dataUrl={geoDataUrl}
@@ -93,7 +99,6 @@ export default function Home() {
           <div className="text-sm mt-2">Select Background</div>
           <ButtonGroup
             direction="horizontal"
-            style="container"
           >
             <Button
               onClick={() => { setUseGeohash(true); }}
@@ -116,12 +121,12 @@ export default function Home() {
             <ButtonGroup
               direction="vertical"
               gap={2}
-              style="outlined"
             >
               <Button
                 onClick={() => { setCategory(null); }}
                 activate={!category}
                 size="sm"
+                style="outlined"
               >
                 None
               </Button>
@@ -131,6 +136,7 @@ export default function Home() {
                   onClick={() => { setCategory(newCategory); }}
                   activate={category?.name === newCategory.name}
                   size="sm"
+                  style="outlined"
                 >
                   {newCategory.name}
                 </Button>

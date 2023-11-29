@@ -35,7 +35,7 @@ export default function PathList() {
           >
             <button
               type="button"
-              className={`text-gray-900 dark:text-white text-xs overflow-hidden whitespace-nowrap p-2 my-2 rounded flex center ${highlightedPath === key ? 'bg-blue-900' : ''}`}
+              className={`w-full text-gray-900 dark:text-white text-xs overflow-hidden whitespace-nowrap p-2 my-2 rounded flex center ${highlightedPath === key ? 'bg-blue-900' : ''}`}
               onClick={() => { selectPath(key); }}
             >
               <span className="mr-2 group bg-blue-700 inline-block text-white rounded text-center shadow">

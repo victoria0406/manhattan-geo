@@ -69,7 +69,7 @@ export default function GeoLayer(
         }}
       />
       )}
-      {category && category.type === 'categorical' && colorStyle &&(
+      {category && category.type === 'categorical' && colorStyle && (
       <Layer
         id="geomapLayer"
         beforeId="geomapLineLayer"

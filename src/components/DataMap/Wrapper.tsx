@@ -7,8 +7,8 @@ import { debounce } from 'lodash';
 import { useRecoilState, useRecoilValue } from 'recoil';
 
 export default function Wrapper(
-  { children, viewState }
-    :{children: React.ReactNode, viewState:ViewStateType},
+  { children }
+    :{children: React.ReactNode },
 ) {
   const [, setIsMapLoad] = useState(false);
   const isPathDataLoadedState = useRecoilValue(isPathDataLoaded);
@@ -26,7 +26,6 @@ export default function Wrapper(
   return (
     <div className="relative overflow-hidden h-full">
       <Map
-        initialViewState={viewState}
         mapStyle={mapboxStyle}
         mapboxAccessToken={mapboxAccessToken}
         style={{ width: '100vw', height: '100vh' }}
@@ -36,12 +35,12 @@ export default function Wrapper(
       >
         {children}
       </Map>
-      {!isPathDataLoadedState
-                && (
-                <Loading transparent={false} isLoading>
-                  fetching Data
-                </Loading>
-                )}
+      {isPathDataLoadedState
+        && (
+        <Loading transparent={false} isLoading>
+          fetching Data
+        </Loading>
+        )}
     </div>
   );
 }
