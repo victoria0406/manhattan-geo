@@ -24,6 +24,8 @@ export default function Path() {
               'line-opacity': highlightedPath ? 0.3 : 0.5,
             }}
           />
+          {highlightedPath
+          && (
           <Layer
             id="highlightedLayer"
             type="line"
@@ -33,6 +35,7 @@ export default function Path() {
             }}
             filter={['==', 'key', highlightedPath]}
           />
+          )}
         </Source>
         )
   );

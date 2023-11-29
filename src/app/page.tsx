@@ -8,15 +8,15 @@ import { ViewStateType, featureType } from '@/lib/types';
 import React, { useState } from 'react';
 import { RecoilRoot } from 'recoil';
 
+const initialViewTemp : ViewStateType = {
+  longitude: -73.9712488,
+  latitude: 40.7830603,
+  zoom: 12,
+};
+const pathDataUrlTemp = 'https://deepurban.kaist.ac.kr/urban/geojson/nyc_taxi_trajectory_generated_sample.geojson';
+const censusDataUrlTemp = 'https://deepurban.kaist.ac.kr/urban/geojson/manhattan_new_york.geojson';
+
 export default function Home() {
-  /* const initialView : ViewStateType= {
-    longitude:-73.9712488,
-    latitude: 40.7830603,
-    zoom: 12,
-  }
-  const pathDataUrl = 'https://deepurban.kaist.ac.kr/urban/geojson/nyc_taxi_trajectory_generated_sample.geojson';
-  const censusDataUrl = 'https://deepurban.kaist.ac.kr/urban/geojson/manhattan_new_york.geojson';
-  */
   const categories: featureType[] = [
     { name: 'ALAND', type: 'quantitative' },
     { name: 'AWATER', type: 'quantitative' },
@@ -28,14 +28,21 @@ export default function Home() {
   const [useGeohash, setUseGeohash] = useState(true);
 
   const [initialView, setInitalView] = useState<ViewStateType>();
-  const [pathDataUrl, setPathDataUrl] = useState<string>();
-  const [geoDataUrl, setGeoDataUrl] = useState<string>();
+  const [pathDataUrl, setPathDataUrl] = useState<string>('');
+  const [geoDataUrl, setGeoDataUrl] = useState<string>('');
+
+  function settingDatas() {
+    setInitalView(initialViewTemp);
+  }
   return (
     <main className="relative h-screen">
       {!initialView
       && (
-      <div className="w-screen h-screen bg-[url('/setting-bg.jpg')] bg-cover">
-        <div className="xl:w-1/3 lg:w-1/2 w-full dark:bg-gray-800 bg-white h-screen float-right flex flex-col items-center justify-center p-8">
+      <div className="w-screen h-screen flex">
+        <div
+          className="bg-[url('/setting-bg.jpg')] bg-cover lg:w-1/2 w-0"
+        />
+        <div className="lg:w-1/2 w-full dark:bg-gray-800 bg-white h-screen float-right flex flex-col items-center justify-center p-8">
           <h1 className="text-4xl pb-8">PATH VIZ</h1>
           <InputText
             value={pathDataUrl}
@@ -48,7 +55,7 @@ export default function Home() {
           <InputText value={geoDataUrl} id="geo-data-url" label="Geographic data url" onChange={(e) => setGeoDataUrl(e.target.value)} placeholder="https://" />
           <ButtonGroup direction="horizontal" gap={5}>
             <Button size="lg">Prev</Button>
-            <Button size="lg" activate>Next</Button>
+            <Button size="lg" activate onClick={() => settingDatas()}>Next</Button>
           </ButtonGroup>
         </div>
       </div>
@@ -76,7 +83,7 @@ export default function Home() {
           )}
         </DataMap.Wrapper>
         <PathPannel.Wrapper>
-          <PathPannel.FilterSlider filterUnit="year" filterRange={[0, 23]} />
+          <PathPannel.FilterSlider filterUnit="hour" filterRange={[0, 23]} />
           <PathPannel.PathList />
           <PathPannel.ExtractButton filteredDataOnly>
             Extract Strings

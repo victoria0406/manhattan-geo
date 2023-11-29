@@ -52,7 +52,7 @@ export default function GeoLayer(
       type="geojson"
       data={geoData}
     >
-      {category && category.type === 'quantitative' && (
+      {category && category.type === 'quantitative' && maxValue && (
       <Layer
         id="geomapLayer"
         beforeId="geomapLineLayer"
@@ -69,7 +69,7 @@ export default function GeoLayer(
         }}
       />
       )}
-      {category && category.type === 'categorical' && (
+      {category && category.type === 'categorical' && colorStyle &&(
       <Layer
         id="geomapLayer"
         beforeId="geomapLineLayer"

@@ -11,10 +11,6 @@ export default function FilterSlider(
   const [timeFilter, setTimeFilter] = useRecoilState(timeFilterState);
   const [player, setPlayer] = useState<any>(null);
 
-  function changeFilter(value: number) {
-
-  }
-
   function play() {
     let playValue = filterValue - 1;
     const interval = setInterval(() => {
@@ -42,7 +38,7 @@ export default function FilterSlider(
       newFilter[filterUnit] = filterUnit === 'year' ? filterValue.toString() : filterValue.toLocaleString('en-US', { minimumIntegerDigits: 2 });
       setTimeFilter(newFilter);
     }
-  }, [filterValue, setTimeFilter, filterUnit, timeFilter]);
+  }, [filterValue]);
   return (
     <>
       <label

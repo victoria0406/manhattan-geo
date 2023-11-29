@@ -6,7 +6,7 @@ import type { FeatureCollection } from 'geojson';
 
 export default function Heatmap() {
   const filteredPathHeatmapState = useRecoilValue<FeatureCollection|null>(filteredPathHeatmap);
-  const [heatmapMax, setHeatmapMax] = useState(0);
+  const [heatmapMax, setHeatmapMax] = useState(100);
   useEffect(() => {
     if (filteredPathHeatmapState?.features) {
       const values = filteredPathHeatmapState?.features.map(
@@ -18,14 +18,14 @@ export default function Heatmap() {
     }
   }, [filteredPathHeatmapState]);
   return (
-    filteredPathHeatmapState
+    filteredPathHeatmapState && heatmapMax
         && (
         <Source
           type="geojson"
           data={filteredPathHeatmapState}
         >
           <Layer
-            beforeId="pathLayer"
+            // beforeId="pathLayer"
             id="geohashFillLayer"
             type="fill"
             paint={{
@@ -34,14 +34,14 @@ export default function Heatmap() {
                 ['linear'],
                 ['get', 'count'],
                 1, '#0fffff',
-                heatmapMax, '#0000ff',
+                Math.max(2, heatmapMax), '#0000ff',
               ],
               'fill-opacity': [
                 'interpolate',
                 ['linear'],
                 ['get', 'count'],
                 1, 0.3,
-                heatmapMax, 1,
+                Math.max(2, heatmapMax), 1,
               ],
             }}
           />
