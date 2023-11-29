@@ -1,4 +1,4 @@
-/*"use client";
+/* "use client";
 
 import Map, {Source, Layer, Popup, MapLayerMouseEvent, LngLatBounds} from '@/lib/useClientModules';
 import type {FeatureCollection} from 'geojson';
@@ -38,7 +38,7 @@ export default function SensorMap(
 ) {
   const [isCensus, setIsCensus] = useState(true);
   const [isGeohash, setIsGeohash] = useState(true);
-  
+
   const [isMapLoad, setIsMapLoad] = useState<boolean>(false);
 
   const {setGeoBounds, setGeohashPrecision, geohashPrecision, geohash} = useGeoHash();
@@ -47,7 +47,7 @@ export default function SensorMap(
   const [viewState, setViewState] = useState<ViewStateType>();
   const {
     fetchOddata, setOdDataYear, setOdDataMonth, setOdDataHour, setSelectedPath,
-    odData, odDataYear, odDataMonth, odDataHour, odDataFilter, odPaths, selectedPath, 
+    odData, odDataYear, odDataMonth, odDataHour, odDataFilter, odPaths, selectedPath,
   } = useOdData('sensor');
 
   const {
@@ -64,7 +64,7 @@ export default function SensorMap(
   }, [])
 
   async function fetchData() {
-    
+
     setViewState(initialView);
     await fetchOddata(pathUrl);
     await fetchSensorData(dataUrl, extraUrl);
@@ -107,7 +107,8 @@ export default function SensorMap(
       <><Map
         initialViewState={viewState}
         mapStyle="mapbox://styles/mapbox/light-v11"
-        mapboxAccessToken='pk.eyJ1IjoidmljdG9yaWEwNDA2IiwiYSI6ImNsbTdtN3A2ODAxdXkza3MydHRxZm94MHMifQ.7G3rMAvrocvBXl0XYX8WGA'
+        mapboxAccessToken='pk.eyJ1IjoidmljdG9yaWEwNDA2IiwiYSI6ImNsbTdtN
+        3A2ODAxdXkza3MydHRxZm94MHMifQ.7G3rMAvrocvBXl0XYX8WGA'
         style={{width: '100vw', height: '100vh'}}
         onLoad={()=>setIsMapLoad(true)}
         onRender = {mapRender}
@@ -122,7 +123,7 @@ export default function SensorMap(
             paint={{
               'line-color': 'gray',
             }}
-            
+
           />
         </Source>}
         {!!odData &&
@@ -135,7 +136,7 @@ export default function SensorMap(
               'line-color': selectedPath ? [
                 'match',
                 ['get', 'key'],
-                selectedPath,'#000000', 
+                selectedPath,'#000000',
                 '#aaaaaa'
               ] : '#444444',
               'line-width': 4,
@@ -144,7 +145,7 @@ export default function SensorMap(
               'line-opacity': selectedPath ? [
                 'match',
                 ['get', 'key'],
-                selectedPath, 1, 
+                selectedPath, 1,
                 0.01
               ] : 0.3
             }}
@@ -175,7 +176,7 @@ export default function SensorMap(
               'circle-stroke-width': 1,
               'circle-stroke-opacity': selectedPath && !selectedSensor ? [
                 'match',
-                ['get', 'ssid'], 
+                ['get', 'ssid'],
                 odPaths.find(({key})=>selectedPath === key)?.string?.split(','),
                 0.7,
                 0.2
@@ -204,13 +205,14 @@ export default function SensorMap(
               ] : 4,
               'circle-opacity': selectedPath && !selectedSensor ? [
                 'match',
-                ['get', 'ssid'], 
+                ['get', 'ssid'],
                 odPaths.find(({key})=>selectedPath === key)?.string?.split(','),
                 0.7,
                 0.2
               ]: 1
             }}
-            //filter={selectedPath ? ['in', 'ssid', ...odPaths.find(({key})=>selectedPath === key)?.string?.split(',')] : ['all']}
+            //filter={selectedPath ? ['in', 'ssid', ...odPaths.fin
+            d(({key})=>selectedPath === key)?.string?.split(',')] : ['all']}
           />
         </Source>
         }

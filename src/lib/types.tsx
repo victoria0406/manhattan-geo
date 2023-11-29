@@ -6,10 +6,10 @@ export interface ViewStateType {
 export interface featureType {
     name: string,
     type: string,
-  };
+  }
 export interface inputDataType {
     dataType:string,
-    pathUrl: string, 
+    pathUrl: string,
     dataUrl: string,
     extraUrl: string,
     initialView: ViewStateType,
@@ -21,10 +21,10 @@ export type TimeUnit = 'year' | 'month' | 'hour';
 
 export interface TimeFilterType {
     year: string|null,
-    month: string|null, 
+    month: string|null,
     hour: string|null,
 }
 export interface PathType {
-    string: string, 
+    string: string,
     key:string,
 }

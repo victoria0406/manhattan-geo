@@ -1,22 +1,28 @@
-import {Source, Layer} from '@/lib/useClientModules';
+import React, { useEffect, useState } from 'react';
+import { Source, Layer } from '@/lib/useClientModules';
 import { filteredPathHeatmap } from '@/recoil/GeoStore';
-import { useEffect, useState } from 'react';
 import { useRecoilValue } from 'recoil';
-import type {FeatureCollection} from 'geojson';
+import type { FeatureCollection } from 'geojson';
 
 export default function Heatmap() {
-    const filteredPathHeatmapState = useRecoilValue<FeatureCollection|null>(filteredPathHeatmap);
-    const [heatmapMax, setHeatmapMax] = useState(0);
-    useEffect(()=>{
-        if (filteredPathHeatmapState?.features) {
-            setHeatmapMax(Math.max(...filteredPathHeatmapState?.features.map(({properties}) => (properties?.count))));
-        }
-    }, [filteredPathHeatmapState]);
-    return (
-        filteredPathHeatmapState &&
+  const filteredPathHeatmapState = useRecoilValue<FeatureCollection|null>(filteredPathHeatmap);
+  const [heatmapMax, setHeatmapMax] = useState(0);
+  useEffect(() => {
+    if (filteredPathHeatmapState?.features) {
+      const values = filteredPathHeatmapState?.features.map(
+        ({ properties }) => (properties?.count),
+      );
+      if (values) {
+        setHeatmapMax(Math.max(...values));
+      }
+    }
+  }, [filteredPathHeatmapState]);
+  return (
+    filteredPathHeatmapState
+        && (
         <Source
-            type="geojson"
-            data={filteredPathHeatmapState}
+          type="geojson"
+          data={filteredPathHeatmapState}
         >
           <Layer
             beforeId="pathLayer"
@@ -27,7 +33,7 @@ export default function Heatmap() {
                 'interpolate',
                 ['linear'],
                 ['get', 'count'],
-                1,'#0fffff',
+                1, '#0fffff',
                 heatmapMax, '#0000ff',
               ],
               'fill-opacity': [
@@ -40,5 +46,6 @@ export default function Heatmap() {
             }}
           />
         </Source>
-    )
+        )
+  );
 }
