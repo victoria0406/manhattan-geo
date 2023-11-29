@@ -14,8 +14,8 @@ export default function Home() {
     latitude: 40.7830603,
     zoom: 12,
   }
-  const pathDataUrl = 'http://deepurban.kaist.ac.kr/urban/geojson/nyc_taxi_trajectory_generated_sample.geojson';
-  const censusDataUrl = 'http://deepurban.kaist.ac.kr/urban/geojson/manhattan_new_york.geojson';
+  const pathDataUrl = 'https://deepurban.kaist.ac.kr/urban/geojson/nyc_taxi_trajectory_generated_sample.geojson';
+  const censusDataUrl = 'https://deepurban.kaist.ac.kr/urban/geojson/manhattan_new_york.geojson';
 
   const categories: featureType[] = [
     {name: 'ALAND', type:'quantitative'},
