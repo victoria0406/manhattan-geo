@@ -13,7 +13,7 @@ export default function ButtonGroup(props: Props) {
     children, direction = 'vertical', gap = 0,
   } = props;
 
-  const directionStyle = direction === 'horizontal' && children ? `grid-cols-${children.length} [$>button]:rounded-none` : '';
+  const directionStyle = direction === 'horizontal' ? 'grid-cols-2 [$>button]:rounded-none' : '';
 
   const gapStyle = gap ? `gap-${gap} [&>*]:rounded` : '';
   return (
