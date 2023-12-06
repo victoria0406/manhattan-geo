@@ -15,8 +15,8 @@ const initialViewTemp : ViewStateType = {
   latitude: 40.7830603,
   zoom: 12,
 };
-const pathDataUrlTemp = 'https://deepurban.kaist.ac.kr/urban/geojson/nyc_taxi_trajectory_generated_sample.geojson';
-const censusDataUrlTemp = 'https://deepurban.kaist.ac.kr/urban/geojson/manhattan_new_york.geojson';
+const pathDataUrlSample = 'https://deepurban.kaist.ac.kr/urban/geojson/nyc_taxi_trajectory_generated_sample.geojson';
+const censusDataUrlSample = 'https://deepurban.kaist.ac.kr/urban/geojson/manhattan_new_york.geojson';
 
 export default function Home() {
   const categories: featureType[] = [
@@ -33,6 +33,10 @@ export default function Home() {
 
   function settingDatas() {
     SetIsSetted(true);
+  }
+  function fillSample() {
+    setPathDataUrl(pathDataUrlSample);
+    setGeoDataUrl(censusDataUrlSample);
   }
   return (
     <main className="relative h-screen">
@@ -60,6 +64,12 @@ export default function Home() {
             placeholder="https://"
             information="The url should be https, not http"
           />
+          <Button size="lg" onClick={() => fillSample()}>
+            Use Sample Datasets
+          </Button>
+          <ButtonGroup>
+            {}
+          </ButtonGroup>
           <div className="flex justify-between w-full">
             <Button size="md" style="outlined">Prev</Button>
             <Button size="md" disabled={!(pathDataUrl)} onClick={() => settingDatas()}>Next</Button>
