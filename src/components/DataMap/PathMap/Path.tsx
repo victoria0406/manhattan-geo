@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { filteredPath, highlightedPath as highlightedPathState } from '@/recoil/GeoStore';
 import { Source, Layer } from '@/lib/useClientModules';
 import { useRecoilValue } from 'recoil';

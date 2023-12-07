@@ -29,14 +29,18 @@ export default function Home() {
   const [useGeohash, setUseGeohash] = useState(true);
   const [pathDataUrl, setPathDataUrl] = useState<string>('');
   const [geoDataUrl, setGeoDataUrl] = useState<string>('');
-  const [isSetted, SetIsSetted] = useState(false);
+  const [isSetted, setIsSetted] = useState(false);
 
   function settingDatas() {
-    SetIsSetted(true);
+    setIsSetted(true);
   }
   function fillSample() {
     setPathDataUrl(pathDataUrlSample);
     setGeoDataUrl(censusDataUrlSample);
+  }
+  function fillEmpty() {
+    setPathDataUrl('');
+    setGeoDataUrl('');
   }
   return (
     <main className="relative h-screen">
@@ -48,6 +52,14 @@ export default function Home() {
         />
         <div className="lg:w-1/2 w-full dark:bg-gray-800 bg-white h-screen float-right flex flex-col items-center justify-center p-8">
           <h1 className="text-4xl pb-8">PATH VIZ</h1>
+          <div className="flex w-full mb-2 justify-between">
+            <Button size="lg" onClick={() => fillSample()} style="outlined">
+              Use Sample Urls: Manhattan
+            </Button>
+            <Button size="lg" onClick={() => fillEmpty()} style="outlined">
+              Reset Urls
+            </Button>
+          </div>
           <InputText
             value={pathDataUrl}
             id="path-data-url"
@@ -64,16 +76,9 @@ export default function Home() {
             placeholder="https://"
             information="The url should be https, not http"
           />
-          <Button size="lg" onClick={() => fillSample()}>
-            Use Sample Datasets
+          <Button size="md" full disabled={!(pathDataUrl)} onClick={() => settingDatas()}>
+            Visualize
           </Button>
-          <ButtonGroup>
-            {}
-          </ButtonGroup>
-          <div className="flex justify-between w-full">
-            <Button size="md" style="outlined">Prev</Button>
-            <Button size="md" disabled={!(pathDataUrl)} onClick={() => settingDatas()}>Next</Button>
-          </div>
 
         </div>
       </div>

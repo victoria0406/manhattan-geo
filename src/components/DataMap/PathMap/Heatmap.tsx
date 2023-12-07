@@ -25,7 +25,7 @@ export default function Heatmap() {
           data={filteredPathHeatmapState}
         >
           <Layer
-            // beforeId="pathLayer"
+            beforeId="pathLayer"
             id="geohashFillLayer"
             type="fill"
             paint={{

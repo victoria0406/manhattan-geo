@@ -9,12 +9,13 @@ interface Props {
     activate?: boolean,
     size?: Size,
     style?:ButtonStyle,
-    disabled?: boolean
+    disabled?: boolean,
+    full?:boolean,
 }
 
 export default function Button(props: Props) {
   const {
-    children, onClick = () => {}, activate = false, size = 'md', style = 'container', disabled = false,
+    children, onClick = () => {}, activate = false, size = 'md', style = 'container', disabled = false, full = false,
   } = props;
 
   const outlineStyle = 'border-2 [&.active]:border-blue-200 border-blue-400 [&.active]:text-blue-200 text-blue-400 disabled:text-gray-500 disabled:border-gray-500 disabled:cursor-not-allowed';
@@ -27,7 +28,7 @@ export default function Button(props: Props) {
 
   return (
     <button
-      className={`rounded py-1 px-2 text-${size} ${activate ? 'active' : ''} ${styleList[style]}`}
+      className={`rounded py-1 ${full ? 'w-full' : ''} px-2 ${size ? `text-${size}` : ''} ${activate ? 'active' : ''} ${styleList[style]}`}
       onClick={(e) => onClick(e)}
       type="button"
       disabled={disabled}

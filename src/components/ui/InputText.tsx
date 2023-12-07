@@ -7,11 +7,12 @@ interface Props {
     label?:string,
     onChange?: ChangeEventHandler<HTMLInputElement>,
     information?:string,
+    disabled?: boolean
 }
 
 export default function InputText(props:Props) {
   const {
-    id, value, label = null, onChange, placeholder = '', information = null,
+    id, value, label = null, onChange, placeholder = '', information = null, disabled = false,
   } = props;
   return (
     <div className="w-full  mb-4">
@@ -30,6 +31,7 @@ export default function InputText(props:Props) {
         placeholder={placeholder}
         value={value}
         onChange={onChange}
+        disabled={disabled}
       />
       {information && <p className="text-sm text-gray-300">{information}</p>}
     </div>

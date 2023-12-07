@@ -15,7 +15,7 @@ export default function ButtonGroup(props: Props) {
 
   const directionStyle = direction === 'horizontal' ? 'grid-cols-2 [$>button]:rounded-none' : '';
 
-  const gapStyle = gap ? `gap-${gap} [&>*]:rounded` : '';
+  const gapStyle = gap ? 'gap-2 [&>*]:rounded' : '';
   return (
     <div className={`my-4 grid ${directionStyle} w-full overflow-hidden ${gapStyle}`}>
       {children}
