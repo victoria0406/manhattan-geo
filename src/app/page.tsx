@@ -89,14 +89,14 @@ export default function Home() {
         <DataMap.Wrapper>
           {geoDataUrl && (
           <DataMap.GeoMap.Wrapper
-            dataUrl={geoDataUrl}
+            dataUrl={geoDataUrl.substring(30)}
           >
             {!useGeohash && <DataMap.GeoMap.GeoLayer category={category} />}
           </DataMap.GeoMap.Wrapper>
           )}
           {pathDataUrl && (
           <DataMap.PathMap.Wrapper
-            pathUrl={pathDataUrl}
+            pathUrl={pathDataUrl.substring(30)}
           >
             {useGeohash && <DataMap.PathMap.Heatmap />}
             <DataMap.PathMap.Path />
